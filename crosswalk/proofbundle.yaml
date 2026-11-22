@@ -17,7 +17,8 @@
 #                                                sha256 2a70970de2cc41719e744a7c274614b9a7396fa56afd00a7973713dea0514431
 #   Re-pinned from -09 (sha256 96ae2857...a82a07c). -10 changes Sections 1,
 #   1.1, 1.2, 2.4, 2.5, 2.7, 3 to 3.8, 4, 5.1, 5.3, 6, 7, 10.1 and 10.2 and
-#   adds 3.9 to 3.11. Every draft quote and every claim about the draft
+#   adds 3.9 to 3.11 and Appendix B, a second binding to COSE_Sign1 with
+#   Ed25519 (draft C.1). Every draft quote and every claim about the draft
 #   profile below was re-checked against -10, and Sections 3.9 to 3.11, 4
 #   and 5.2 were read in full. Section numbers cited here are unchanged.
 # Every quoted definition below is from those files. Section numbers are given
@@ -68,7 +69,10 @@ maintainer:
   mapped_system_maintainer:
     github: b7n0de
     project: b7n0de/proofbundle
-    confirmed_at: null   # -10 re-pin awaits maintainer review
+    confirmed_at: "2026-11-22"
+    # Confirmed 2026-11-22 on PR #277 (comment 7078601817), for 51be819 with
+    # his listed points applied, against proofbundle v6.6.0 @ 850be24 and
+    # draft -10.
     # Previous confirmation: 2026-11-16 on PR #266 (comment 6911883621),
     # for 1fa6a11 with his listed points applied, against proofbundle 6d29ead
     # and draft -09.
@@ -83,7 +87,8 @@ maintainer:
 # encoding of payloadType and these bytes" (draft 1.2). -10 also defines an
 # OPTIONAL approverSignature on the approval record (draft 3.11), not emitted
 # by proofbundle main @ bb018ea (6.6.0, grep of the tree found no
-# approverSignature), so it does not change this value.
+# approverSignature), so it does not change this value. Appendix B of -10
+# adds a COSE_Sign1 binding with Ed25519, which is also classical.
 # canonicalization: "the producer MUST emit the Statement payload in RFC-8785
 # canonical form", and the verifier "never re-canonicalizes" (doc §7.1). A
 # payload that differs from its own RFC 8785 form is a fail-closed error.
@@ -393,7 +398,7 @@ proofbundle_specific_terms:
   content_root: "SHA-256 over the exact RFC 8785 canonical Statement bytes, never recomputed by re-canonicalizing (doc §3, §7.1). Used by evidenceRefs, decisionRef and relation edges. [evidence]"
   notChecked: "List of {field, reason, impact} stating what the decision maker did not check. Required in strict mode and by draft Figure 1, optional in the default verify mode (doc §6). [coverage_and_completeness]"
   decisionChangeConditions: "List of {conditionType, description, requiredEvidenceType} stating what would change the decision. Required in strict mode and by draft Figure 1, optional in the default verify mode (doc §6). [activation_condition]"
-  approval_record: "Record of one human act approving one action: approvalId, approver, session, actionDigest, approvedAt, validUntil, bound into inputSnapshot by digest, and not signed by the approver in the base profile (draft 2.1, 2.5). -10 adds an OPTIONAL approverSignature (draft 3.11): a pass shows that the holder of a key the trust policy binds to the approver signed the approval members, and does not show that the person understood or saw the action, who holds the key, when they signed, \"that the approver had the authority to approve the action\", that the action ran, or that the approval is honoured at most once (draft 3.11.4). Records without the member stay valid (draft 3.11). Not emitted by proofbundle 6.6.0 as far as a grep of main @ bb018ea shows. [approval]"
+  approval_record: "Record of one human act approving one action: approvalId, approver, session, actionDigest, approvedAt, validUntil, bound into inputSnapshot by digest, and not signed by the approver in the base profile (draft 2.1, 2.5). -10 adds an OPTIONAL approverSignature (draft 3.11): a pass shows that the holder of a key the trust policy binds to the approver signed the approval members and that the supplied action bytes have actionDigest as their SHA-256, and does not show that the person understood or saw the action, who holds the key, when they signed, \"that the approver had the authority to approve the action\", that the action ran, that the approval is honoured at most once, or \"that the decision was correct, safe or lawful\" (draft 3.11.4). Records without the member stay valid (draft 3.11). Not emitted by proofbundle 6.6.0 as far as a grep of main @ bb018ea shows, and a search of tag v6.6.0 @ 850be24 found no match for approverSignature, approver_signature or approval-record-signature (a source search, not a runtime check). [approval]"
   approval_single_use: "A relying party MUST honour each approval at most once, keyed by (approvalId, actionDigest, session), and MUST keep that state across rotation (draft 4). [approval, expiry_or_exhaustion]"
   evaluation_receipt_as_evidence: "An evaluation receipt appears only in evidenceRefs. 'A verifier MUST NOT treat a valid Signed Evaluation Receipt ... as permission for an action' (draft 2.6). [evidence]"
   detached_anchors: "Anchors for a receipt's own content root travel outside the signed bytes. A pending anchor does not satisfy strict mode (doc §8). [evidence]"
