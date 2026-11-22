@@ -1,0 +1,243 @@
+# UIBC Core → Agent Governance Vocabulary Crosswalk
+# =============================================================================
+# License: Apache-2.0
+# Repository: https://github.com/zhaoxinghua09-cell/uibc-core
+# Spec: https://github.com/zhaoxinghua09-cell/uibc-core/blob/main/docs/verdict-and-seal-semantics.md
+#   (seal v0.3 semantics; normative for this crosswalk)
+# Web verifier: https://zhaoxinghua09-cell.github.io/uibc-core/verify.html
+# =============================================================================
+# Maintainer / Provenance:
+# UIBC Core is maintained by the contributor filing this crosswalk. Every
+# mapping below is grounded in the seal-v0.3 semantics document at the spec
+# URL above, read at commit 03b81b2bc272c6d2f1d17ebc249f4e8d456d211f.
+# Where UIBC does not issue a signal, the row says no_mapping rather than
+# stretching a near label to fit.
+# =============================================================================
+
+system: uibc-core
+version: "0.1"
+license: "Apache-2.0"
+maintainer:
+  github: zhaoxinghua09-cell
+  confirmed_at: "2026-11-22"
+spec_url: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/main/docs/verdict-and-seal-semantics.md"
+repository: "https://github.com/zhaoxinghua09-cell/uibc-core"
+
+system_attributes:
+  signature_capability: classical
+  canonicalization_profile: jcs-rfc-8785
+  hash_family: sha-256
+
+mappings:
+  - canonical: governance_attestation
+    internal: seal (signatures/seal.json) + verification verdict
+    match: partial
+    notes: >
+      A UIBC evidence package carries an Ed25519 seal over the canonical
+      serialization of {"identity", "manifest"}; the manifest binds the
+      evidence root, so evidence content is covered transitively. A
+      separate verifier step then runs six declared checks (S1 structure,
+      S2 identity consistency, S3 lifecycle state machine, S4 evidence
+      content hashes, S5 evidence root, S6 seal signature) and issues a
+      three-valued verdict: PASS, FAIL, or INCONCLUSIVE. Divergence from
+      the canonical primitive: the seal is the package author's, not the
+      verifier's — the seal attests that this identity bound this
+      evidence set, and the requirement-satisfaction determination is
+      made by the verifier, not asserted by the seal. A PASS means,
+      within the observed evidence boundary, no violation was detected;
+      it does not claim the agent was correct, safe, or wise, or that
+      the recorded inputs were true or complete.
+    signed_shape:
+      root: seal
+      required_fields:
+        - seal.algorithm
+        - seal.public_key
+        - seal.key_id
+        - seal.signature
+      source_paths:
+        - "docs/verdict-and-seal-semantics.md: §2 Seal algorithms"
+        - "docs/verdict-and-seal-semantics.md: §1 The three-valued verdict"
+
+  - canonical: trust_verification
+    internal: identity record + S2 identity consistency check
+    match: partial
+    notes: >
+      Every package carries an identity record, and check S2 verifies
+      that the identity is consistent across the package and bound to
+      the sealing key (key_id is the SHA-256 of the public key).
+      Divergence: UIBC issues no graded verification status — no
+      Grade 1-3, no KYC presence, no principal endorsement. It binds an
+      identity to a key and checks consistency; it does not grade the
+      identity.
+
+  - canonical: entity_continuity
+    internal: lifecycle record chain (S3 lifecycle state machine)
+    match: partial
+    notes: >
+      A subject's lifecycle is recorded as an ordered sequence of state
+      transitions, and check S3 verifies the sequence follows the
+      declared state machine, so continuity of the record across the
+      subject's life is machine-checked. Divergence, stated plainly:
+      continuity across key rotation is not yet attested. The seal
+      scheme has no revocation or rotation chain yet (tracked as an
+      open audit finding and in active development); a rotated key
+      currently starts a new binding rather than proving persistence
+      across the rotation.
+
+  - canonical: decision_lineage
+    internal: lifecycle event sequence
+    match: partial
+    notes: >
+      The lifecycle event sequence is ordered and state-machine-checked
+      (see entity_continuity above), and the evidence set it produced is
+      content-addressed via the evidence root. Divergence: lineage
+      entries are not individually signed — per-event signatures exist
+      in the format but are unratified and are not covered by the seal
+      (spec §3), so the sequence is checked as a whole, not replayed
+      from per-entry signatures.
+
+  - canonical: bilateral_receipt
+    internal: handover evidence pack
+    match: false_analog
+    notes: >
+      UIBC ships a handover evidence pack (one party seals a handover
+      record; the receiving party verifies it, including a pinned-key
+      run). It looks like a two-party receipt and could plausibly be
+      wired up as one, but it is not: only the outgoing party signs.
+      The receiving party's verification is a determination, not a
+      co-signature over the same preimage, and no signed `purpose`
+      field is emitted. Recorded as false_analog so no consumer treats
+      a verified handover as a bilateral receipt.
+
+  - canonical: security_posture
+    internal: seal over an evidence package (the artifact is the subject)
+    match: partial
+    notes: >
+      The signed subject in UIBC is an artifact — an evidence package —
+      not an actor, which is the canonical primitive's shape.
+      Divergence: the artifact is an evidence package rather than a
+      repo, commit, or output, and there is no wallet-based lookup; the
+      lookup key is the recorded key_id or a verifier-supplied pin.
+
+  - canonical: behavioral_trust
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC computes no trust score and no longitudinal behavioral
+      assessment. Its verdict is per-package and evidence-bound, not a
+      scored judgement of an agent over time.
+
+  - canonical: peer_review
+    internal: (none)
+    match: no_mapping
+    notes: >
+      The UIBC verifier is a third party, not the task delegator, and
+      its verdict is a determination over evidence, not a delegator's
+      attestation about an executor's delivery.
+
+  - canonical: completion_ratio
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC does not aggregate task completions over an observation
+      window.
+
+  - canonical: settlement_witness
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC attests nothing about payments or value exchange.
+
+  - canonical: passport_grade
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC issues no composite grade from passport evidence.
+
+  - canonical: wallet_state
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC attests no balances, holdings, or wallet identity
+      attachments.
+
+  - canonical: wallet_intelligence
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC performs no behavioral classification of wallet activity.
+
+  - canonical: compliance_risk
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC computes no exposure or counterparty risk score. Its checks
+      are structural and evidentiary, not regulatory exposure scoring.
+
+  - canonical: job_performance
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC does not assess completed task outcomes as a performance
+      signal.
+
+  - canonical: reasoning_integrity
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC attests nothing about an agent's reasoning. Its evidence
+      boundary is the recorded package, not the decision process.
+
+  - canonical: cognitive_attestation
+    internal: (none)
+    match: no_mapping
+    notes: >
+      UIBC makes no commitment about reasoning state at decision time,
+      under any reduction map.
+
+descriptor_dimensions:
+  enforcement_class: binding
+  validity_temporal: at_issuance
+  refusal_authority: verifier
+  invariant_survival: post_action
+  replay_class: full_replay
+  governed_action_class: publish
+
+verification:
+  cli: "uibc verify <package> [--pubkey <expected public key>]"
+  web_verifier: "https://zhaoxinghua09-cell.github.io/uibc-core/verify.html"
+  signature_format: "Ed25519 (RFC 8032); legacy HMAC-SHA256 seals retained"
+  canonicalization: "RFC 8785 (JCS) for the evidence root: SHA-256(JCS(sorted(content_hashes)))"
+  verifier_key_field: "seal.key_id (SHA-256 of the public key)"
+  signed_payload_root: "{\"identity\": ..., \"manifest\": ...}"
+  signed_payload_notes: >
+    The seal signs the canonical serialization of the identity and
+    manifest objects and nothing else; evidence content is bound
+    transitively through the manifest's evidence root. An Ed25519 seal
+    can be verified by anyone with no secret; pinning the expected
+    public key is the verifier's half of the contract — an unpinned
+    check of a package re-sealed under a substitute key returns PASS
+    against the attacker's key, and the spec says so in its mode table
+    (docs/verdict-and-seal-semantics.md §5). Assurance is reported per
+    run as public-key, owner-key, or unattested.
+  conformance_vectors: "fixtures/EXPECTED.md and fixtures-v041/ in the repository pin the agreed verdict outcomes, including the negative and forgery cases"
+  independent_implementation: "An independent verifier written against the spec text (not the reference code) is kept in the repository at independent_verifier/"
+
+notes: >
+  UIBC Core is the reference implementation of an evidence discipline
+  for agent lifecycle governance (registered, evidenced, gated): an
+  agent's identity is registered, its lifecycle evidence is sealed,
+  and a verifier's gate decides on the record. This crosswalk is
+  intentionally scoped to the seal-v0.3 semantics at the pinned commit;
+  the HMAC seal mode is retained for compatibility and is noted where
+  it changes what a verifier can conclude (an HMAC seal checked
+  without its key is INCONCLUSIVE at S6, never PASS).
+
+limitations: >
+  A UIBC verdict speaks only about the evidence package in front of
+  the verifier. It does not establish that the recorded events
+  happened as described, that the agent behaved well, or that any
+  real-world outcome followed. Key revocation and rotation are not
+  yet attested (see the entity_continuity row). Timestamps inside a
+  package are claims by the package author; none is anchored to an
+  external time source.
