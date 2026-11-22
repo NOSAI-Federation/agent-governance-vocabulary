@@ -3,15 +3,17 @@
 # Agent Audit Trail (AAT) -> Agent Governance Vocabulary
 #
 # Mapped artifact: the AAT audit record and session chain defined in
-#   draft-sharif-agent-audit-trail-09 (datatracker rev 09, posted 2026-10-26)
-#   https://www.ietf.org/archive/id/draft-sharif-agent-audit-trail-09.txt
-#   sha256 4728ea78883abcf8c50629acd58f737e614d0a821e6516cbb1651d3b26532dd1
+#   draft-sharif-agent-audit-trail-11 (datatracker rev 11, posted 2026-11-21)
+#   https://www.ietf.org/archive/id/draft-sharif-agent-audit-trail-11.txt
+#   sha256 377ed33392a8657f936a9bf13dbaaa5efb6bacbabcd8a0d62600248210d5e902
+#   Re-pinned from -09. Sections changed between -09 and -11: 1.3, 3.1,
+#   5.2, 7.7 and 16.2, plus new 8.5 and 14.7. -10 was not read separately.
 # Section numbers are given as "§n" and refer to that text. Every quoted
 # definition below is from it.
 #
 # Implementation references, read but not mapped field by field:
 #   razashariff/aat-conformance main @ c8e3d94741148cc662d4c3e86088fe968b33e3f4
-#   (2026-11-01), 184 vectors, runner and reference verifier for -09, with
+#   (2026-11-01), 184 vectors, runner and reference verifier for -09 (not re-checked against -11), with
 #   SPEC-NOTES.md listing ambiguities the author found while building it.
 #   aat-mcp 0.1.0 on PyPI (razashariff/aat-mcp), described in Appendix E as
 #   covering "record format (Section 3), hash chaining and chain verification
@@ -26,8 +28,8 @@ system:
   name: Agent Audit Trail
   short_name: agent-audit-trail
   home: https://datatracker.ietf.org/doc/draft-sharif-agent-audit-trail/
-  spec: https://www.ietf.org/archive/id/draft-sharif-agent-audit-trail-09.txt
-  spec_version: "draft-sharif-agent-audit-trail-09 (individual Internet-Draft)"
+  spec: https://www.ietf.org/archive/id/draft-sharif-agent-audit-trail-11.txt
+  spec_version: "draft-sharif-agent-audit-trail-11 (individual Internet-Draft)"
   repo: https://github.com/razashariff/aat-conformance
   implementation: "aat-mcp 0.1.0 (PyPI, Python), aat-conformance reference verifier at c8e3d94. Appendix E also lists cyl-castillo/agent-console (export conforming to -08) and Keyorix (design accepted, no implementation)."
   role: >
@@ -77,8 +79,9 @@ system_attributes:
   hash_family: sha-256
 
 # Search basis for every no_mapping and false_analog row below:
-#   draft-sharif-agent-audit-trail-09 Sections 1 to 15 read in full at the
-#   hash above. Not read: Appendices A to D (example trail, EU AI Act
+#   draft-sharif-agent-audit-trail-09 Sections 1 to 15 read in full, then
+#   -11 compared with -09 section by section at the hash above and every
+#   changed or new section read. Not read: Appendices A to D (example trail, EU AI Act
 #   evidence mapping, implementation notes, change log), the aat-mcp source,
 #   the aat-conformance vectors. A no_mapping row states that these sections
 #   were searched and no corresponding field or record was found. It is not
@@ -241,47 +244,47 @@ signal_types:
   reasoning_integrity:
     canonical: reasoning_integrity
     match: no_mapping
-    notes: "reasoning_hash (§7.3) commits to a reasoning chain by digest and attests nothing about it. No reasoning attestation found in Sections 1 to 15 of -09."
+    notes: "reasoning_hash (§7.3) commits to a reasoning chain by digest and attests nothing about it. No reasoning attestation found in Sections 1 to 15 of -11."
 
   behavioral_trust:
     canonical: behavioral_trust
     match: no_mapping
-    notes: "risk_score and confidence are per-action values. No scored assessment of agent behavior over time found in Sections 1 to 15 of -09."
+    notes: "risk_score and confidence are per-action values. No scored assessment of agent behavior over time found in Sections 1 to 15 of -11."
 
   job_performance:
     canonical: job_performance
     match: no_mapping
-    notes: "outcome (success, failure, timeout, denied, escalated) is per action. No assessment of completed work found in Sections 1 to 15 of -09."
+    notes: "outcome (success, failure, timeout, denied, escalated) is per action. No assessment of completed work found in Sections 1 to 15 of -11."
 
   peer_review:
     canonical: peer_review
     match: no_mapping
-    notes: "A delegation record (§7.4) is written by the delegating side. No completion attestation signed by the delegator found in Sections 1 to 15 of -09."
+    notes: "A delegation record (§7.4) is written by the delegating side. No completion attestation signed by the delegator found in Sections 1 to 15 of -11."
 
   settlement_witness:
     canonical: settlement_witness
     match: no_mapping
-    notes: "cost_estimate is an \"Estimated cost of the action\" (§3.2). No settlement record found in Sections 1 to 15 of -09."
+    notes: "cost_estimate is an \"Estimated cost of the action\" (§3.2). No settlement record found in Sections 1 to 15 of -11."
 
   security_posture:
     canonical: security_posture
     match: no_mapping
-    notes: "platform_attestation (§3.2, §5.4) carries a RATS attestation result for the recording platform, bound to the chain head. It is not a posture assessment of a published artifact. Nothing closer found in Sections 1 to 15 of -09."
+    notes: "platform_attestation (§3.2, §5.4) carries a RATS attestation result for the recording platform, bound to the chain head. It is not a posture assessment of a published artifact. Nothing closer found in Sections 1 to 15 of -11."
 
   completion_ratio:
     canonical: completion_ratio
     match: no_mapping
-    notes: "No aggregate metric found in Sections 1 to 15 of -09. record_count on the close record (§8.3) counts records, not completions."
+    notes: "No aggregate metric found in Sections 1 to 15 of -11. record_count on the close record (§8.3) counts records, not completions."
 
   wallet_state:
     canonical: wallet_state
     match: no_mapping
-    notes: "No wallet attestation found in Sections 1 to 15 of -09."
+    notes: "No wallet attestation found in Sections 1 to 15 of -11."
 
   wallet_intelligence:
     canonical: wallet_intelligence
     match: no_mapping
-    notes: "No wallet-behavior classification found in Sections 1 to 15 of -09."
+    notes: "No wallet-behavior classification found in Sections 1 to 15 of -11."
 
 # ──────────────────────────────────────────────────────────────
 # DECISION TRAJECTORY
@@ -328,7 +331,7 @@ decision_trajectory:
       baseline for the session" (§8.1), and trust_assignment.policy_version
       names the classification policy (§3.2). Both are configuration or
       policy identifiers, not a behavioral baseline that a decision was
-      evaluated against. Nothing closer found in Sections 1 to 15 of -09.
+      evaluated against. Nothing closer found in Sections 1 to 15 of -11.
 
   divergence_signal:
     canonical: divergence_signal
@@ -338,12 +341,12 @@ decision_trajectory:
       larger value indicates a decision more robust to numeric
       perturbation" (§13.3). It measures numeric robustness of one decision,
       not deviation from a behavioral baseline. Nothing closer found in
-      Sections 1 to 15 of -09.
+      Sections 1 to 15 of -11.
 
   trust_velocity:
     canonical: trust_velocity
     match: no_mapping
-    notes: "A lifecycle event trust_level_change exists (§7.7). No rate of change in trust found in Sections 1 to 15 of -09."
+    notes: "A lifecycle event trust_level_change exists (§7.7). No rate of change in trust found in Sections 1 to 15 of -11."
 
 # ──────────────────────────────────────────────────────────────
 # DESCRIPTOR DIMENSIONS
@@ -405,10 +408,11 @@ descriptor_dimensions:
 # ──────────────────────────────────────────────────────────────
 agent_audit_trail_specific_terms:
   record_phase: "pre_execution, post_execution or concurrent: when the record was written relative to the action. A post-execution record \"cannot prove that a policy gate existed before the action ran\" (§4.1). [authorization_decision, execution]"
-  recording_independence: "Graded recorder independence: self-recording at L0 and L1, an independent recorder with a distinct key and OS principal at L2 and above, hardware-attested recording as the strongest tier (§5.1 to §5.4). \"An in-process signature demonstrates the transit integrity of a record but not recording honesty\" (§5.2). [evidence]"
+  recording_independence: "Graded recorder independence: self-recording at L0 and L1, an independent recorder with a distinct key and OS principal at L2 and above (\"audit records MUST be written by a component independent of the agent\", §5.2, a SHOULD in -09), hardware-attested recording as the strongest tier (§5.1 to §5.4). \"An in-process signature demonstrates the transit integrity of a record but not recording honesty\" (§5.2). [evidence]"
   trust_assignment: "Records which classifier assigned a trust level under which policy version, and whether the action was downgraded below its fail-safe default, so a downgrade is \"a tamper-evident, attributable event rather than a silent omission\" (§5.3). [authority]"
-  principal: "The immediate authorizing party with an authority_ref to the grant, delegation record or external grant identifier. authority_ref is null when no authorization artifact exists (§3.1). [authority, delegation]"
-  absence_evidence: "sequence_number, heartbeat records at a declared heartbeat_interval_s, the session close record and externally anchored chain heads, which together bound tail truncation and recorder silence (§3.2, §6.3 steps 9 and 10, §8.3, §8.4). [coverage_and_completeness]"
+  principal: "The immediate authorizing party with an authority_ref to the grant, delegation record or external grant identifier. authority_ref is null when no authorization artifact exists (§3.1). At L2 and above authority_ref \"MUST be non-null\" and must reference an artifact signed by a key distinct from the agent's, because \"at L2 and above an agent cannot attest to its own authority\" (§3.1). The draft does not say how a verifier resolves the reference. [authority, delegation]"
+  absence_evidence: "sequence_number, heartbeat records at a declared heartbeat_interval_s, the session close record and externally anchored chain heads, which together bound tail truncation and recorder silence (§3.2, §6.3 steps 9 and 10, §8.3, §8.4). These bound silence but do not support reasoning about absence, which needs a completeness statement (§8.5). [coverage_and_completeness]"
+  completeness_statement: "A chained lifecycle record (event completeness_statement, §7.7) in which a recorder or log custodian asserts that, for a declared scope of agent_ids, session_ids and a timestamp interval, its log holds every record it produced, as of a declared as_of instant, with record_count and a Merkle set_digest over the in-scope records (§8.5). Absence of a record is evidence of non-occurrence only inside the scope and up to as_of of a statement that verifies, and the statement is \"an assertion by its signer, not a property the format can make true\" (§8.5). A later record inside the scope that chains to the same custodian falsifies it (§14.7). The claim covers records the custodian produced, not actions that occurred unrecorded. Whether a record belongs to the scope is decided by its own timestamp field, so the falsification rests on a value the custodian writes; external_timestamp binds the statement's time, not each record's (§3.2, §14.7). Optional: the draft says a custodian MAY emit one. [coverage_and_completeness]"
   tombstone: "A record that replaces a deleted record's content while preserving the hash chain, with content_fingerprint proving prior existence after erasure (§2, §3.2, §9.3). [evidence]"
   attestation_closure: "A decision may be marked reproducible only when weights, tokenizer, chat template, engine build, decoding configuration, numeric environment and input are all digested or pinned (§13.6). [evidence]"
 
@@ -460,6 +464,7 @@ open_questions:
 # Not raised here: the ambiguities the author already lists in
 # aat-conformance SPEC-NOTES.md at c8e3d94 (N1 to N14, among them attestation
 # binding at genesis, record_hash undefined, heartbeat and record_deleted
-# missing from the §7.7 list, tombstone shape, ML-DSA thumbprints, and
+# missing from the §7.7 list (-11 adds heartbeat and completeness_statement to
+# that list; record_deleted is still absent from it), tombstone shape, ML-DSA thumbprints, and
 # consequential actions not being machine-identifiable). This crosswalk
 # follows the draft text and does not adopt the corpus's resolutions.
