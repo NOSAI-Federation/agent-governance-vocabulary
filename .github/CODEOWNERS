@@ -1,0 +1,8 @@
+# Workflows, the code CI runs, its dependencies and the access list
+# are assigned to the owner for review. Everything else follows
+# CONTRIBUTING.md and SHARED-DECISIONS.md.
+/.github/ @aeoess
+/scripts/ @aeoess
+/package.json @aeoess
+/package-lock.json @aeoess
+/MAINTAINERS.md @aeoess
