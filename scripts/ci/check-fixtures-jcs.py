@@ -13,7 +13,7 @@ Two checks, both from the pinned agent-evidence-vectors package:
 The SHA-256 of each file's canonical bytes goes to stdout, and to the job
 summary when GITHUB_STEP_SUMMARY is set, so a change to a fixture's value
 shows up as a digest change in review even when formatting changes hide it.
-Exit status: 0 all checks passed, 1 a check failed, 2 the check did not run.
+Exit status: 0 all checks passed, 1 a check failed or no byte vector was replayed, 2 the check did not run.
 """
 from __future__ import annotations
 
@@ -32,9 +32,20 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "fixtures"
 
 
-def replay_byte_vectors() -> list[str]:
-    """One line per RFC 8785 byte vector the reference canonicalizer fails."""
-    return list(a2ajcs.check(a2ajcs.canonicalize, target="rfc8785"))
+def replay_byte_vectors() -> tuple[int, list[str]]:
+    """Replay the RFC 8785 byte vectors; return (how many ran, one line per failure).
+
+    The count comes from the same iterator the replay walks, so an empty iterator
+    reads as zero vectors replayed instead of as zero failures.
+    """
+    ran = 0
+    failures: list[str] = []
+    for vector in a2ajcs.vectors(target="rfc8785"):
+        ran += 1
+        reason = a2ajcs.failure(a2ajcs.canonicalize, vector)
+        if reason is not None:
+            failures.append(f"{vector.id} ({vector.clause}): {reason}")
+    return ran, failures
 
 
 def check_fixture(path: Path) -> tuple[str, str | None]:
@@ -56,7 +67,10 @@ def main() -> int:
         return 2
     rows: list[str] = []
     failed = 0
-    vector_failures = replay_byte_vectors()
+    vectors_run, vector_failures = replay_byte_vectors()
+    print(f"RFC 8785 byte vectors replayed: {vectors_run}")
+    if vectors_run == 0:
+        print("the package yielded no RFC 8785 byte vectors; nothing was replayed", file=sys.stderr)
     for line in vector_failures:
         print(f"JCS byte vector failed: {line}")
     for path in files:
@@ -73,11 +87,17 @@ def main() -> int:
     if summary:
         with open(summary, "a", encoding="utf-8") as out:
             out.write("## RFC 8785 canonical digests of the shared fixtures\n\n")
-            out.write(f"JCS byte vectors failed by the reference canonicalizer: {len(vector_failures)}\n\n")
+            out.write(
+                f"JCS byte vectors replayed: {vectors_run}; "
+                f"failed by the reference canonicalizer: {len(vector_failures)}\n\n"
+            )
             out.write("| fixture | SHA-256 of canonical bytes |\n| --- | --- |\n")
             out.write("\n".join(rows) + "\n")
-    print(f"{len(files) - failed} of {len(files)} fixtures canonicalize; {len(vector_failures)} byte vectors failed")
-    return 1 if (failed or vector_failures) else 0
+    print(
+        f"{len(files) - failed} of {len(files)} fixtures canonicalize; "
+        f"{vectors_run} byte vectors replayed, {len(vector_failures)} failed"
+    )
+    return 1 if (failed or vector_failures or vectors_run == 0) else 0
 
 
 if __name__ == "__main__":
