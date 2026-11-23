@@ -11,7 +11,7 @@ These accounts are proposed for GitHub's Maintain role on this repository. None 
 | Account | Project | Scope | Time | Agreed | Status |
 |---|---|---|---|---|---|
 | [@Poke-nushi](https://github.com/Poke-nushi) | VATE | VATE descriptions and examples, including a worked example when a project asks how its systems connect, which another participant can check from the original records. Reviews of changes to VATE's own entries. | Asynchronous, as updates come up | [#244](https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/244#issuecomment-7055850249), [confirmed](https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/244#issuecomment-7071290894) | Pending review |
-| [@darklordVirtual](https://github.com/darklordVirtual) | REMORA | REMORA entries, documentation and occasional pull request reviews, starting with a small scope | Occasional | [#244](https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/244#issuecomment-7062099455), confirmation pending | Pending review |
+| [@darklordVirtual](https://github.com/darklordVirtual) | REMORA | REMORA entries, documentation and occasional pull request reviews, starting with a small scope | Asynchronous, based on availability | [#244](https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/244#issuecomment-7062099455), [confirmed](https://github.com/NOSAI-Federation/agent-governance-vocabulary/pull/281#issuecomment-7116991575) | Pending review |
 
 A maintainer reviews changes to their own project's entries. Changes to files that more than one project relies on are coordinated on the pull request concerned and follow [SHARED-DECISIONS.md](./SHARED-DECISIONS.md).
 
@@ -27,7 +27,7 @@ Changes to `.github/`, `scripts/`, `package.json`, `package-lock.json` and this 
 
 ## Changing access
 
-Adding a maintainer or an owner, or removing one who has not asked to leave, requires a public pull request that stays open for 14 days and explicit support from at least two participating projects other than the project gaining or losing access. Silence does not count as support.
+Adding a maintainer or an owner, or removing one who has not asked to leave, requires a public pull request that stays open for 14 days and explicit support from at least two participating projects, as listed in [SHARED-DECISIONS.md](./SHARED-DECISIONS.md#participating-projects), other than the project gaining or losing access. Silence does not count as support.
 
 A maintainer may step down at any time. Their access is removed on request, and the change is recorded publicly.
 
