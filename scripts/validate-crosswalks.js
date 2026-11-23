@@ -557,7 +557,7 @@ function validateDescriptorBlock(block, file, dotPathPrefix) {
       const dotPath = `${dotPathPrefix}.${dimName}`
       const override = isLegacyOverride(file, dotPath, v)
       if (override) {
-        warn(file, `${dotPath}: deprecated value "${v}" — ${override.note} See https://github.com/aeoess/agent-governance-vocabulary/issues/${override.resolution_issue}.`)
+        warn(file, `${dotPath}: deprecated value "${v}" — ${override.note} See https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/${override.resolution_issue}.`)
       } else {
         err(file, `${dotPath}: "${v}" not in vocabulary (allowed: ${[...allowed].join(', ')})`)
       }
