@@ -251,6 +251,12 @@ passing result from another boundary or from an earlier
 measurement, and missing evidence is not recorded as a
 failure of the invariant.
 
+When summarizing results over a period, state the
+observation window and the number of evaluations performed
+within it. If no evaluations were performed, report
+insufficient data rather than survival or a survival
+percentage.
+
 These records show what was measured. They do not prove
 that an invariant remained enforced across every boundary
 in the governed path. When that cannot be established, state
