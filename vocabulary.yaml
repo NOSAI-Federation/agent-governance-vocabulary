@@ -42,7 +42,7 @@ signal_types:
   wallet_intelligence:
     status: reserved
     review_by: "2026-12-08"
-    review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
+    review_exception: "Temporary exception, issue #283: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
     note: 'No production implementation. Default action at review_by: removal unless a production implementation surfaces.'
     definition: "Behavioral classification of wallet activity (sybil signals, volume patterns, sanctions proximity)."
     issuers_in_production: []
@@ -51,7 +51,7 @@ signal_types:
   reasoning_integrity:
     status: reserved
     review_by: "2026-12-08"
-    review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
+    review_exception: "Temporary exception, issue #283: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
     note: 'No production implementation. Default action at review_by: removal unless a production implementation surfaces.'
     definition: "Attestation surface = the action, not the actor. Wallet-agnostic by design."
     issuers_in_production: []
@@ -60,7 +60,7 @@ signal_types:
   compliance_risk:
     status: reserved
     review_by: "2026-12-08"
-    review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
+    review_exception: "Temporary exception, issue #283: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
     note: 'No production implementation. Default action at review_by: removal unless a production implementation surfaces.'
     definition: "Scored exposure assessment (counterparty flagged or clean). NOT a positive credential."
     issuers_in_production: []
@@ -104,7 +104,7 @@ signal_types:
   job_performance:
     status: reserved
     review_by: "2026-12-08"
-    review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
+    review_exception: "Temporary exception, issue #283: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
     note: 'No production implementation. Default action at review_by: removal unless a production implementation surfaces.'
     definition: "Wallet-bound assessment of completed task outcomes."
     issuers_in_production: []
@@ -248,7 +248,7 @@ signal_types:
   cognitive_attestation:
     status: reserved
     review_by: "2026-12-08"
-    review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
+    review_exception: "Temporary exception, issue #283: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
     note: 'No production implementation. Default action at review_by: removal unless a production implementation surfaces.'
     proposed_by: ["AEOESS"]
     definition: >
