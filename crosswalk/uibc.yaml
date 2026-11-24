@@ -26,6 +26,23 @@
 #     #280 draft's full_replay to decision_replay).
 #   * links pinned to 03b81b2bc272c6d2f1d17ebc249f4e8d456d211f, the
 #     commit the rows were read at, instead of main.
+#   * decision_lineage now also states the S17 receipt chain
+#     (evidence/chain.json, previous_receipt_hash over the JCS of the
+#     predecessor) next to the event-id linkage of lifecycle.json, and
+#     records that the chain file is a structural member rather than an
+#     index entry, so the evidence root does not commit its bytes. That
+#     boundary was measured, not assumed: verify() at 03b81b2 on
+#     conformance/cases/02 gives S5 root a9348d857ee5efb3... unchanged
+#     when only chain.json is rewritten (cda26a78 -> 04e28d66) with S17
+#     still PASS, and unchanged again when the receipts are reversed, where
+#     S17 turns FAIL.
+#   * Rechecked at the pinned commit by running the verifier rather than
+#     reading the spec: checkpoint_head, lifecycle_head and the S1-S6 / S8
+#     behaviour described below match what verify() emits at 03b81b2 on
+#     conformance/cases/02 (overall INCONCLUSIVE, S6 unverified without a
+#     seal key). The revision note for the earlier pin said the fields had
+#     been checked against a verifier report; this says which report and
+#     at which commit.
 #
 # Written by the mapped system's own author, not by the vocabulary
 # maintainers. It states what the published implementation actually emits,
@@ -268,6 +285,22 @@ signal_types:
       and middle events are not individually committed. A consumer
       requiring hash-linked entries cannot treat this as the canonical
       primitive.
+      When `evidence/chain.json` is present, S17 checks a linear receipt
+      chain instead: receipt i's `previous_receipt_hash` must be the
+      SHA-256 over the JCS encoding of receipt i-1's signed envelope, and
+      receipt 0 must carry 64 zeros (`uibc_core/chain.py`, `check_chain`);
+      a value JCS cannot encode is a FAIL rather than a skip. That is the
+      shape the canonical term describes, but for the receipt stream only —
+      the lifecycle log stays linked by `event_id`, not by hash. One
+      boundary, measured at the pinned commit rather than assumed:
+      `evidence/chain.json` is a structural member under `evidence/`, not
+      an index entry, so the evidence root does not commit its bytes.
+      Rewriting only chain.json (same data, different whitespace;
+      sha256 cda26a78... -> 04e28d66...) leaves S5's computed root
+      unchanged at a9348d857ee5efb3... with S17 still PASS; reversing the
+      receipts leaves the root unchanged and turns S17 to FAIL. S17
+      therefore shows the chain is internally consistent, not that the
+      chain file was not replaced.
 
 # ─────────────────────────────────────────────────
 # DESCRIPTOR DIMENSIONS
@@ -331,7 +364,7 @@ enforceability:
   strong: "receipt-side checks a replayer can re-run from the published fixture set (the verifier's check set plus the negative-control fixtures)"
   bounded: "the verdict holds only inside the declared evidence boundary; outside it we emit INCONCLUSIVE rather than extend the claim"
   detectable_only: "anything derived from a source we cannot re-fetch at verification time"
-  reference: "https://github.com/zhaoxinghua09-cell/silent-failure-catalog/blob/main/index.md"
+  reference: "https://github.com/zhaoxinghua09-cell/silent-failure-catalog/blob/1309e1a483227a1f6c61267abd4071f06d26caab/index.md"
 
 # ─────────────────────────────────────────────────
 # ANCHOR
