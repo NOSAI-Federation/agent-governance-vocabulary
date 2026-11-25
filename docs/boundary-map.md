@@ -35,7 +35,6 @@ Three things are recorded separately for every edge and never merged:
 |---|---|---|---|
 | AgentAvow | @kenneives | Signed scan attestation for a tool (MCP server, package, repo, skill): compact JWS over an RFC 8785 canonical verdict, carrying `scan.toolManifestDigest` over the tool definitions the scan observed | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5893438004) |
 | Agent Passport System (APS) | @aeoess | Delegation and decision evidence: action intent receipt, policy decision receipt and decision evidence, identified by `decision_ref` | [#177](https://github.com/aeoess/agent-governance-vocabulary/issues/177) |
-| PIC Standard | @madeinplutofabio | Pre-execution action gate: a signed attestation binding evidence to the proposed tool, arguments, impact, claims and provenance, with an allow or block outcome | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5890595191) |
 | PriorSeal | @imokokok | Before execution, a principal-signed exact-call authorization that carries external decision evidence. After execution, a receipt and a comparison of the observed call against the authorization | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885120538) |
 | Insight | @imokokok | Signed `OracleSafetyCheck` evidence. A separate project from PriorSeal that can compose with it. A lab interop record exists (`interop/insight-oracle-safety-check-13bd3ed`). No cross-project boundary was proposed in #177 | same comment |
 | argentum-core | @giskard09 | Its `action_ref` artifact: SHA-256 over an RFC 8785 canonicalization of the decision inputs, anchored on chain through `AnchorRegistry`. `action_ref` is an artifact of this node, not a separate project | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5887743729) |
@@ -43,16 +42,13 @@ Three things are recorded separately for every edge and never merged:
 | REMORA-research | @darklordVirtual | Runtime capability evidence for a bounded claim: every recorded tool invocation belongs to the declared tool set for the identified runtime configuration. `runtime_capability_surface_completeness` stays `NOT_ESTABLISHED` | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885614008) |
 | Veritas Acta | @tomjwxf | Signed receipts and receipt chains ([draft-farley-acta-signed-receipts](https://datatracker.ietf.org/doc/draft-farley-acta-signed-receipts/)), verifiable offline with [@veritasacta/verify](https://github.com/VeritasActa/verify). Test vectors are published at [ScopeBlind/agent-governance-testvectors](https://github.com/ScopeBlind/agent-governance-testvectors), linked as evidence only | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885617993) |
 | Frequency | @altrudev | Independent verification of claims, artifacts and cross-project relationships against explicit evidence, one result per claim. Commits designated for the bounded A1 review only. The designation does not cover unrelated outside testing | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885397094) |
-| Assay | @Rul1an | The project the standalone corpus-adequacy tool came out of. No interoperability boundary for Assay itself was proposed in #177 | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885883462) |
-| corpus-adequacy | @Rul1an | A standalone tool that came out of Assay. Mutation-adequacy report for a published corpus: which seeded checker faults the corpus kills and which survive, with a positive and an inert control | same comment |
-| Default Settlement / DefaultVerifier | @nutstrut | Independent evidence evaluation and portable verification artifacts for autonomous systems. Produces portable SAR v0.1 receipts with PASS, FAIL or INDETERMINATE verdicts over a frozen six-field signed core, and can consume pinned external artifacts for independently implemented evaluation. Claim ceiling: a valid SAR receipt establishes the signed evaluator result for the referenced task or evidence under the applicable profile. It does not by itself establish authority validity, execution occurrence, completeness, independent observation or adoption by another system. No edge until a first bounded pilot is chosen | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5902118417) |
+| corpus-adequacy | @Rul1an | A standalone tool that came out of Assay. Mutation-adequacy report for a published corpus: which seeded checker faults the corpus kills and which survive, with a positive and an inert control | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885883462) |
 | invinoveritas | @babyblueviper1 | A verification layer for autonomous agents. Before an irreversible action, it issues a signed verdict that anyone can check offline at [/verify-proof](https://invinoveritas.dev/verify-proof) (BIP-340 Schnorr against its published key). Every verdict goes to a public [ledger](https://invinoveritas.dev/ledger), and its hash is anchored to Bitcoin before the outcome is known. It judges and attests. It holds no authority over the action, enforces nothing, and takes no custody of anyone's funds. Open vectors and checkers for the formats it verifies: [preaction-governance-conformance](https://github.com/babyblueviper1/preaction-governance-conformance). Independent approver on MUSUBI ([horizon-shield#31](https://github.com/ogasurfproject-jpg/horizon-shield/issues/31)) | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6044710512) |
 | Motebit | @hakimlabs | An agent runtime built around a persistent Ed25519 identity the user owns, with signed execution receipts and policy and delegation enforced through explicit runtime boundaries. Signed `ExecutionReceipt`s and identity files (`motebit.md`) are checked offline with no Motebit runtime and no network, using `npx @motebit/verify` or the `@motebit/verifier` library. The construction is `JCS → SHA-256 → Ed25519`, specified under [`spec/`](https://github.com/motebit/motebit/tree/main/spec), with a Python reference verifier as a second implementation. A verdict reports what it actually checked. The protocol layer is Apache-2.0 and the runtime is BSL. Proposed boundary: the existing APS and Motebit vector exchange ([motebit/motebit#22](https://github.com/motebit/motebit/issues/22)), extended to an authority artifact that a receipt cites. Participates asynchronously through issues and fixtures | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6045292388) |
 | Horizon Shield / NENRIN | @ogasurfproject-jpg | NENRIN, run by Horizon Shield, a four-person company in Japan, is an open conduct-witness ledger for AI-facing services. Anyone can walk an MCP or A2A endpoint and file a signed witness record. The ledger batches records daily and anchors them to Bitcoin (OpenTimestamps). Disagreeing witnesses are kept side by side, and no score is given. Another project can verify a witness record from `GET https://ledger.horizonshield.dev/witness/<sha>` alone (canonical bytes, Ed25519 signature, and the key the witness's domain serves), MUSUBI contracts and settlements with `settle_v1_10.py` offline and deterministically, and Agent Card signatures against `a2a-card-sign-v01`. Boundary: it records and recomputes. It enforces nothing at runtime, judges no liability, and holds no funds or keys. Open vectors and checkers include interop-v0, v0.1, v0.2-edge, musubi-approval-v2 and a2a-card-sign-v01, and the [tsunagi board](https://github.com/ogasurfproject-jpg/horizon-shield/blob/main/ops/tsunagi/BOARD.md) reruns outside implementations nightly from their own repos | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6048922299) |
 | [VATE (Verifiable Agent Trust Envelope)](https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope) | @Poke-nushi | Apache-2.0 specification draft for recording a relying party's decision to allow, attenuate or deny an agent action and linking the resulting receipt to post-execution evidence. Includes schemas, a reference runner and reproducible examples for checking admission receipts and their links to execution evidence | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6197548546) |
 | Agent Errata | @piiiico | A catalogue of failure modes in the tools agents verify with, such as a count that reads 0 because the command failed, a suite that exits 0 without running, or a gate that passes everything. Each entry has a check that prints a defect arm and a control arm with expected values, and an entry's standing is the number of independent agents it reproduced on. Several entries are about the boundary between a verifier's exit status and the result a run wrapper reports (E001, E002, E007, E018). No edge proposed | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5972172634), [listing request](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6077294084) |
 | AgenTrust | @imran-siddique | Described by its owner as a Linux Foundation project: TRACE trust records, cMCP and Agent Manifest. A TRACE record is checked offline with `trace-verify` 0.4.3 against the published schema and vectors. Proposed four edges (E12 to E15), pinned in its own repositories | [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6105373945) |
-| Nobulex | @arian-gogani | Confirmed by its owner ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6112136553)). A Python SDK that emits Ed25519-signed, RFC 8785 canonical receipts for agent actions. Each receipt carries `action_ref = SHA-256(JCS({agent_id, action_type, scope, timestamp_ms}))`. Its TRACE integration states that the receipts are not TRACE Trust Records | [integration README](https://github.com/agentrust-io/integrations/tree/e6998d8883ae1328995f4d0d38f6816a5d6bbdc8/integrations/nobulex/README.md), [run record on #177](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6094738216) |
 
 Supporting projects, listed separately: this vocabulary (crosswalks and match types) and the [Agent Authority Conformance lab](https://github.com/Agent-Authority-Conformance/aps-conformance-suite) (run records with per-claim attribution).
 
@@ -65,17 +61,17 @@ Supporting projects, listed separately: this vocabulary (crosswalks and match ty
                        │       AgentAvow       │
                        │ signed static verdict │
                        │   over a tool digest  │
-                       └────┬─────────────┬────┘
-                            ║             ┆
-  E1 pinned, reproduced,    ║             ┆ E4 proposed
-  into an APS-side consumer ║             ┆
-            ╔═══════════════╝             └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-            ▼                                                ▼
- ┌───────────────────────┐    E5 proposed    ┌───────────────────────┐
- │          APS          │                   │          PIC          │
- │ authority and decision│ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄▶ │     pre-execution     │
- │       evidence        │                   │         gate          │
- │                       │                   └───────────────────────┘
+                       └────┬──────────────────┘
+                            ║
+  E1 pinned, reproduced,    ║
+  into an APS-side consumer ║
+            ╔═══════════════╝
+            ▼
+ ┌───────────────────────┐
+ │          APS          │
+ │ authority and decision│
+ │       evidence        │
+ │                       │
  └─────┬───────────┬─────┘
        ║           ║
        ║ E2        ║ E3
@@ -141,24 +137,17 @@ Supporting projects, listed separately: this vocabulary (crosswalks and match ty
  │ decision    │                │ complete record  │
  └─────────────┘                └──────────────────┘
 
- ┌─────────────┐  E13, E14      ┌──────────────────┐
- │ Veritas Acta│  pinned, as    │ AgenTrust TRACE  │
- │ Nobulex     │  reported      │ record evidence  │
- │             │ ────────────▶  │                  │
+ ┌─────────────┐  E13 pinned,   ┌──────────────────┐
+ │ Veritas Acta│  as reported   │ AgenTrust TRACE  │
+ │             │ ────────────▶  │ record evidence  │
  └─────────────┘                └──────────────────┘
 
- ┌──────────────────┐  E15 pinned,   ┌─────────────┐
- │ AgenTrust TRACE  │  as reported   │  Frequency  │
- │ trust records    │ ────────────▶  │  TRACE      │
- │                  │                │  adapter    │
- └──────────────────┘                └─────────────┘
-
- ┌─────────────┐                ┌─────────────┐                ┌────────────────────┐
- │   Insight   │                │    Assay    │                │ Default Settlement │
- │ signed      │                │ parent of   │                │ DefaultVerifier    │
- │ safety      │                │ the adequacy│                │ independent        │
- │ evidence    │                │ tool        │                │ evaluation, SAR    │
- └─────────────┘                └─────────────┘                └────────────────────┘
+ ┌─────────────┐
+ │   Insight   │
+ │ signed      │
+ │ safety      │
+ │ evidence    │
+ └─────────────┘
  ┌─────────────┐
  │ Agent Errata│
  │ failure     │
@@ -176,15 +165,6 @@ Supporting projects, listed separately: this vocabulary (crosswalks and match ty
  │ per-claim, from its │              └──────────────────┘
  │ own implementation  │
  └─────────────────────┘
-
- ┌─────────────────────┐  A2 scoped   ┌──────────────────────────┐
- │   corpus-adequacy   │ ┄┄┄┄┄┄┄┄┄┄▶  │ Frequency checker over   │
- │ can the corpus tell │              │ the E2 corpus            │
- │ a broken checker    │              └──────────────────────────┘
- │ from a correct one? │  A3 run      ┌──────────────────────────┐
- │                     │ reported ─▶  │ REMORA                   │
- └─────────────────────┘              │ evidence-sufficiency-v1  │
-                                      └──────────────────────────┘
 
 
                      SUPPORTING PROJECTS
@@ -252,35 +232,15 @@ Supporting projects, listed separately: this vocabulary (crosswalks and match ty
 - **Owners.** argentum-core owns the derivation and its sets. APS owns the helper and its vectors.
 - **Remaining.** The `action_ref` portion of [`crosswalk/mycelium-trails.yaml`](../crosswalk/mycelium-trails.yaml) was refreshed against argentum action-ref spec v1.2 in #180, merged 2026-10-01, with @giskard09's approval.
 
-### E4. AgentAvow -> PIC
-
-- **Producer and artifact.** The E1 fixture.
-- **Consumer.** A PIC Action Proposal carrying the three gate fields.
-- **Field mappings.** None recorded. PIC has not yet defined how external evidence enters an Action Proposal.
-- **Progress.** `proposed`.
-- **Provenance.** Proposed by @kenneives, who offered to shape the fixture to PIC's Action Proposal.
-- **Owners.** AgentAvow owns the fixture. PIC owns the consumer.
-- **Remaining.** PIC defining how external authority and evidence become PIC evidence, and who is trusted to sign it.
-
-### E5. APS -> PIC
-
-- **Producer and artifact.** APS authority for one bounded synthetic MCP action.
-- **Consumer.** PIC checks the action at the protected tool. An operator who built neither component runs the allowed call and altered or unsupported calls.
-- **Field mappings.** None recorded.
-- **Progress.** `proposed`.
-- **Provenance.** Proposed by @madeinplutofabio. APS side agreed in the thread.
-- **Owners.** PIC leads the pre-execution scope and test cases. APS defines its own side. The first operator should be outside both projects.
-- **Remaining.** The same PIC definition as E4.
-
 ### E6. Veritas Acta -> paying side
 
 - **Producer and artifact.** Acta receipts and receipt chains, verifiable offline against published vectors.
-- **Consumer.** The paying side, which checks before money moves that every billed item has a signed receipt, that none is missing, and what an independent re-check found. In the run records below, Nobulex's `suite/e6_consumer.py` and Agent Errata's `interop/e6-acta/e6-consumer.ts` check the fixture in this role. Every case expects `payment_ready` false, so the run is an evidence check, not a payment decision. No paying project is named.
+- **Consumer.** The paying side, which checks before money moves that every billed item has a signed receipt, that none is missing, and what an independent re-check found. In the run record below, Agent Errata's `interop/e6-acta/e6-consumer.ts` checks the fixture in this role. Every case expects `payment_ready` false, so the run is an evidence check, not a payment decision. No paying project is named.
 - **Field mappings.** None recorded for this edge.
 - **Pinned artifact.** [`VeritasActa/e6-fixture`](https://github.com/VeritasActa/e6-fixture) `v1.0.0` (`0770f61`, `SHA256SUMS` sha256 `c744788d…`) and `v1.0.1` (`c0966c6`, `SHA256SUMS` sha256 `0d8afb13…`). `v1.0.1` changes only `README.md` and the README line of `SHA256SUMS`. Every data file is byte-identical to `v1.0.0`. Eleven cases. `v1.1.0` (`8d8fc50`, `SHA256SUMS` sha256 `08731bb7…`) adds case 12, an altered manifest signature. Twelve cases.
 - **Progress.** `pinned`, `reproduced`.
-- **Provenance.** Proposed by @tomjwxf, who wants one consuming project for a pilot. Run by @arian-gogani at `v1.0.0` with `suite/e6_consumer.py` at [`arian-gogani/nobulex-registry@4a73724`](https://github.com/arian-gogani/nobulex-registry/tree/4a73724) (sha256 `745219a1…`): 11 of 11 agree, failure codes included ([run record](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6094738216)). Rerun by @aeoess with the same consumer at `v1.0.0` and `v1.0.1` (Python 3.13, `cryptography` 50.0.1), 11 of 11 on each. Veritas Acta authored the fixture and Nobulex the consumer. The original run was by the consumer's author and is recorded as reproduced, not independent. The rerun by @aeoess is recorded separately, claims no independence, and does not change the standing of the original run. Progress raised on @tomjwxf's confirmation ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6117865169)). At `v1.1.0`, Horizon Shield (@ogasurfproject-jpg) ran Agent Errata's consumer `interop/e6-acta/e6-consumer.ts` at [`piiiico/agent-errata@8363d2c`](https://github.com/piiiico/agent-errata/tree/8363d2c1f8b8bc65de0d93befdbe7e28a82a0b9b/interop/e6-acta) (sha256 `fad87cec…`) unmodified and published the full comparison output and a signature-blind control: 12 of 12 agree on verdict, decisive check, all eight claims and every code, and the signature-blind control moved exactly cases 07, 08 and 12 ([run record](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6209464568)). Horizon Shield authored neither the fixture nor the consumer, so this record is independent for the fixture's outcomes. @tomjwxf checked it against the `v1.1.0` case files ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6228336945)).
-- **Owners.** Veritas Acta owns the receipt format, the verifier and the fixture. Nobulex owns the consumer used in the first run, and Agent Errata the consumer used in the independent run. The consuming project is unnamed.
+- **Provenance.** Proposed by @tomjwxf, who wants one consuming project for a pilot. At `v1.1.0`, Horizon Shield (@ogasurfproject-jpg) ran Agent Errata's consumer `interop/e6-acta/e6-consumer.ts` at [`piiiico/agent-errata@8363d2c`](https://github.com/piiiico/agent-errata/tree/8363d2c1f8b8bc65de0d93befdbe7e28a82a0b9b/interop/e6-acta) (sha256 `fad87cec…`) unmodified and published the full comparison output and a signature-blind control: 12 of 12 agree on verdict, decisive check, all eight claims and every code, and the signature-blind control moved exactly cases 07, 08 and 12 ([run record](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6209464568)). Horizon Shield authored neither the fixture nor the consumer, so this record is independent for the fixture's outcomes. @tomjwxf checked it against the `v1.1.0` case files ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6228336945)).
+- **Owners.** Veritas Acta owns the receipt format, the verifier and the fixture. Agent Errata owns the consumer used in the independent run. The consuming project is unnamed.
 - **Adjacent existing work, not evidence for this edge.** [`crosswalk/aps-acta.yaml`](../crosswalk/aps-acta.yaml) is a pairwise composition crosswalk between APS and Acta, calibrated against APS 2.6.0 with Acta-side review pending, so it is not current.
 - **Remaining.** A pilot with a paying project.
 
@@ -356,22 +316,6 @@ Supporting projects, listed separately: this vocabulary (crosswalks and match ty
 - **What these runs check.** Each receipt alone in receipt mode: the six expected signature outcomes, plus receipt format and chain-link syntax. Not predecessor continuity, policy freshness or session binding, so 04 to 06 return valid in this mode. TRACE's fixture test compares those three with the fixed expectations at the pin. The verifier reports draft-farley-acta-signed-receipts-03, and the trace-spec test is written against -02. None of this shows how TRACE consumes the receipts at runtime.
 - **Owners.** Veritas Acta owns the receipt format and the verifier. AgenTrust owns the fixtures' use in TRACE and the test.
 
-### E14. Nobulex -> AgenTrust TRACE
-
-- **Producer and artifact.** Nobulex signed action receipts, described by [`integrations/nobulex`](https://github.com/agentrust-io/integrations/tree/e6998d8883ae1328995f4d0d38f6816a5d6bbdc8/integrations/nobulex) at agentrust-io/integrations `e6998d88` as external execution evidence a verifier can check alongside a TRACE Trust Record (trace-spec #34). That README states the receipts are not TRACE Trust Records. Tier `verified`, role `external-evidence-source`.
-- **Consumer.** TRACE tooling.
-- **Progress.** `pinned`, as reported by the proposer.
-- **Provenance.** Proposed by @imran-siddique, who described it as Nobulex evidence into a TRACE record. The editors read the integration README and recorded its own wording. @arian-gogani confirmed the node and this description ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-6112136553)) and notes that Nobulex has not run the TRACE consumer or independently verified the integration, so this edge is not evidence of TRACE conformance, production use or adoption. The integration was not run by the editors.
-- **Owners.** Nobulex owns its evidence. AgenTrust owns TRACE and the tier.
-
-### E15. AgenTrust TRACE -> Frequency
-
-- **Producer and artifact.** Standalone TRACE Trust Records.
-- **Consumer.** Frequency's TRACE adapter in [`integrations/altrudev-frequency-agent-execution-assurance`](https://github.com/agentrust-io/integrations/tree/e6998d8883ae1328995f4d0d38f6816a5d6bbdc8/integrations/altrudev-frequency-agent-execution-assurance) at agentrust-io/integrations `e6998d88`, which verifies a record with a caller-supplied trusted issuer key and projects selected fields into a claim-limited Frequency external evidence record. Tier `community`, conformance level 0 per the proposer. In that repository, community tier means the structure was checked and the code was not run by AgenTrust.
-- **Progress.** `pinned`, as reported by the proposer.
-- **Provenance.** Proposed by @imran-siddique. @altrudev confirmed Frequency's side against the pinned integration ([comment](https://github.com/aeoess/agent-governance-vocabulary/pull/179#issuecomment-6112410125)), including the community tier, conformance level 0 and pinned status, and states that it does not establish hardware attestation, binding of the signing key to a runtime, independent conformance or actual external execution, and that the public adapter neither exposes Frequency Core nor authorizes agent actions. Not inspected by the editors. Separate from the A1 designation, which covers the bounded E2 review only.
-- **Owners.** AgenTrust owns TRACE. Frequency owns the adapter and its records.
-
 ### E16. argentum-core (`decision-bound-output-v1`) -> Horizon Shield blind second readers
 
 - **Producer and artifact.** @giskard09's `decision-bound-output-v1` contract and vectors in [giskard09/execution-join-ref-remora-bridge](https://github.com/giskard09/execution-join-ref-remora-bridge), pinned at `4cbf5c85`. The clarification and three added cases that pin the reading left open in [probityai/agent-evidence-atlas#76](https://github.com/probityai/agent-evidence-atlas/issues/76) are at `062faff` in the same repository.
@@ -401,31 +345,17 @@ These sit outside the runtime action graph. They consume artifacts, corpora or c
 - **Progress.** `scoped` ([scope](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5885842512)). @altrudev has started building thin adapters on the Frequency side ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5902671142)) and asked for the pilot inputs and for the baseline to be frozen before any run. @altrudev has since designated the review execution commit `cf7389097fe3a404b3557da2e72fdd8cbe962b81` ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5951535671)), with `RUN.md` at documentation commit `a40562268aa1d6e1f6d369e296c16261d623c4e0`. Both are retained by tags `aps-priorseal-a1-exec-2026-10-02` and `aps-priorseal-a1-instructions-2026-10-02`. PriorSeal confirmed its side of the bounded A1 scope at those two pins ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5952032554)), and APS confirmed its side with conditions ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5956876272)). Each is a scope confirmation by one side. The bounded synthetic offline run was completed on 2026-10-07. APS accepted the frozen report as the A1 maintainer record, not as an attestation or endorsement, and @altrudev reports that PriorSeal did too ([comment](https://github.com/aeoess/agent-governance-vocabulary/pull/179#issuecomment-6112410125)). Result as reported by @altrudev: 14 `ESTABLISHED`, 3 `CONTRADICTED`, 5 `NOT_ESTABLISHED`. The report itself is not public, so the progress label stays `scoped`. Those acceptances do not certify Frequency, authorize publication, admit results into a shared record, or approve A2 or live chain execution. Publication remains on hold, and the designation does not cover unrelated outside testing. The review repository carries a review only notice.
 - **Owners.** Frequency owns its verifier and results.
 
-### A2. corpus-adequacy -> Frequency's checker over the E2 corpus
-
-- **What it would emit.** Which seeded faults the pinned E2 corpus detects, with a positive and an inert control. Fault table at claim level: [comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5892629762). Rows without a pinned negative input are expected to survive and would be reported as corpus discrimination limits, not verifier failures. Scoring follows @Rul1an's note ([comment](https://github.com/aeoess/agent-governance-vocabulary/pull/179#issuecomment-5908062490)). A crash or a missing result does not count as detection. The report would count as detections only changes in the targeted claim and list any crash beside them. That differs from A3, where the agreed reading counts crash kills and labels them.
-- **Progress.** `scoped`. Nothing has been run. It runs only after Frequency publishes its own result and @altrudev consents. The full report goes to the three maintainers first, and public release needs each one's separate approval.
-- **Owners.** corpus-adequacy owns the tool and the report.
-
-### A3. corpus-adequacy -> REMORA `evidence-sufficiency-v1`
-
-- **What it emits.** An adequacy report over REMORA's corpus.
-- **Progress.** Run reported, review in progress.
-- **Provenance.** @darklordVirtual reports that the first run found real gaps in what the corpus can distinguish, tracked in [REMORA-research#629](https://github.com/darklordVirtual/REMORA-research/issues/629) ([comment](https://github.com/aeoess/agent-governance-vocabulary/issues/177#issuecomment-5895284356)). Not inspected by the editors of this file. @Rul1an, who wrote the tool and the fault definitions and ran both runs, reports them as public ([comment](https://github.com/aeoess/agent-governance-vocabulary/pull/179#issuecomment-5908062490)). v1.0 ran at REMORA `31c4060` ([report](https://github.com/Rul1an/remora-es-v1-adequacy/blob/05f7a087b6462400f4eb9ea9e4fb7d4aa023ccd3/REPORT.md)). v1.1 ran at `57ee0351`, before the squash merge as `8772d85` ([report](https://github.com/corpus-adequacy/remora-es-v11-adequacy/blob/9f3851995bbe395e510dde9ce9a03ebb6f1f965a/REPORT.md)), with the maintainer's survivor classification in [corpus-adequacy/remora-es-v11-adequacy#1](https://github.com/corpus-adequacy/remora-es-v11-adequacy/issues/1). By his own statement neither record is independent, both reports count crash kills and label them, and a v1.2 rerun under maintainer review is not part of this entry. The editors checked that these links resolve and did not review the reports.
-- **Owners.** REMORA owns the corpus and the survivor classification. corpus-adequacy owns the tool and the run reports.
-
 ## Example composition (hypothetical)
 
 One way some edges could compose for one bounded paid MCP action. Illustrative only. No project is required for it, no run of it exists, and no results are filled in.
 
-1. AgentAvow attests the tool-definition digest of the target MCP server (E1 or E4).
+1. AgentAvow attests the tool-definition digest of the target MCP server (E1).
 2. APS issues a decision for one exact call.
 3. PriorSeal binds `decision_ref` into a principal-signed exact-call authorization before execution (E2).
-4. PIC allows or blocks the call at the protected tool (E5).
-5. After execution, PriorSeal compares the observed call with the authorization (E2).
-6. `action_ref` binds the decision inputs across projects and anchors them (E3).
-7. Veritas Acta checks that every billed item has a receipt before payment (E6).
-8. Frequency and corpus-adequacy observe the pinned claims and corpora (A1, A2).
+4. After execution, PriorSeal compares the observed call with the authorization (E2).
+5. `action_ref` binds the decision inputs across projects and anchors them (E3).
+6. Veritas Acta checks that every billed item has a receipt before payment (E6).
+7. Frequency observes the pinned claims (A1).
 
 Any subset works without the rest. A project can use E1 and E2 without E6, or E9 without any of the others.
 
