@@ -354,7 +354,7 @@ One way some edges could compose for one bounded paid MCP action. Illustrative o
 3. PriorSeal binds `decision_ref` into a principal-signed exact-call authorization before execution (E2).
 4. After execution, PriorSeal compares the observed call with the authorization (E2).
 5. `action_ref` binds the decision inputs across projects and anchors them (E3).
-6. Veritas Acta checks that every billed item has a receipt before payment (E6).
+6. The paying side checks each billed item against its Veritas Acta receipt before payment (E6).
 7. Frequency observes the pinned claims (A1).
 
 Any subset works without the rest. A project can use E1 and E2 without E6, or E9 without any of the others.
