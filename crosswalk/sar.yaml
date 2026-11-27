@@ -112,7 +112,17 @@ descriptor_dimensions:
   validity_temporal: at_issuance
   refusal_authority: consumer_policy
   invariant_survival: post_action
-  replay_class: full_replay
+  invariant_survival_notes: >
+    The receipt is issued after the evaluation of the declared condition. It
+    records that evaluation only and does not establish that any external
+    action, settlement or payment occurred.
+  replay_class: no_replay
+  replay_class_notes: >
+    Anyone can verify the receipt signature with the published keys, but that
+    does not reproduce the evaluation. The receipt carries task_id_hash and the
+    verdict, not the submitted output or the declared condition. Pending the
+    maintainer's answer on what task_id_hash commits to: if it binds the
+    evaluation inputs, fingerprint_only applies.
   governed_action_class: compose
 
 verification:
