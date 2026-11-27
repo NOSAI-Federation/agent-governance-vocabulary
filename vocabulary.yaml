@@ -129,14 +129,14 @@ signal_types:
       invariant_survival: post_action
       replay_class: full_replay
       governed_action_class: compose
-    issuers_in_production: ["SAR"]
+    issuers_in_production: []
     notes: |
-      Single-issuer (SAR) as of 2026-06-23. Proposed per CONTRIBUTING.md
-      2-implementation threshold; canonicalized when a second independent
-      implementation surfaces. SAR implementation: DefaultVerifier /
-      SettlementWitness signed receipts (see crosswalk/sar.yaml). This is an
-      AEOESS vocabulary term; the implementer-specific signing key and receipt
-      schema live in the crosswalk, not in this definition.
+      No issuer in production as of 2026-11-27. SAR was listed from
+      2026-06-23 until its maintainer recommended recalibrating its mapping
+      to false_analog (issue #284): SettlementWitness receipts attest the
+      evaluation of a declared condition, not the occurrence of a settlement
+      (see crosswalk/sar.yaml). The definition is unchanged. Proposed per
+      CONTRIBUTING.md 2-implementation threshold.
 
   peer_review:
     status: canonical

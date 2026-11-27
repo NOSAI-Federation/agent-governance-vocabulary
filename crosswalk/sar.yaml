@@ -30,12 +30,21 @@ system_attributes:
 mappings:
   - canonical: settlement_witness
     internal: receipt_v0_1
-    match: exact
+    match: false_analog
     notes: >
-      SettlementWitness issues SAR receipts as post-execution outcome
-      attestations. In the live DefaultVerifier implementation, the signed
-      payload is the `receipt_v0_1` object. Current production receipts include
-      `counterparty` in signature scope when present.
+      SettlementWitness issues SAR receipts that attest the evaluation of a
+      declared condition: the verdict says whether a submitted output matched
+      the provided spec. The receipt does not identify a particular settlement
+      or establish that one occurred, which is what settlement_witness
+      defines. false_analog rather than no_mapping because a consumer could
+      read a signed PASS verdict as evidence that a settlement occurred.
+      Recalibrated from exact on 2026-11-27 at the maintainer's recommendation
+      (issue #284). The receipt signatures verify independently with the
+      published keys, and that does not imply settlement occurrence, payment
+      finality or external adoption. In the live DefaultVerifier
+      implementation, the signed payload is the `receipt_v0_1` object. Current
+      production receipts include `counterparty` in signature scope when
+      present.
     signed_shape:
       root: receipt_v0_1
       required_fields:
