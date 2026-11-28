@@ -30,12 +30,21 @@ system_attributes:
 mappings:
   - canonical: settlement_witness
     internal: receipt_v0_1
-    match: exact
+    match: false_analog
     notes: >
-      SettlementWitness issues SAR receipts as post-execution outcome
-      attestations. In the live DefaultVerifier implementation, the signed
-      payload is the `receipt_v0_1` object. Current production receipts include
-      `counterparty` in signature scope when present.
+      SettlementWitness issues SAR receipts that attest the evaluation of a
+      declared condition: the verdict says whether a submitted output matched
+      the provided spec. The receipt does not identify a particular settlement
+      or establish that one occurred, which is what settlement_witness
+      defines. false_analog rather than no_mapping because a consumer could
+      read a signed PASS verdict as evidence that a settlement occurred.
+      Recalibrated from exact on 2026-11-27 at the maintainer's recommendation
+      (issue #284). The receipt signatures verify independently with the
+      published keys, and that does not imply settlement occurrence, payment
+      finality or external adoption. In the live DefaultVerifier
+      implementation, the signed payload is the `receipt_v0_1` object. Current
+      production receipts include `counterparty` in signature scope when
+      present.
     signed_shape:
       root: receipt_v0_1
       required_fields:
@@ -72,9 +81,9 @@ mappings:
     internal: (none)
     match: no_mapping
     notes: >
-      SAR records post-execution outcome evidence for a single verification
-      event. It does not compute a longitudinal scored trust assessment derived
-      from observed behavior over time.
+      SAR records the result of a single evaluation of a submitted output
+      against a declared condition. It does not compute a longitudinal scored
+      trust assessment derived from observed behavior over time.
 
   - canonical: wallet_state
     internal: (none)
@@ -103,7 +112,17 @@ descriptor_dimensions:
   validity_temporal: at_issuance
   refusal_authority: consumer_policy
   invariant_survival: post_action
-  replay_class: full_replay
+  invariant_survival_notes: >
+    The receipt is issued after the evaluation of the declared condition. It
+    records that evaluation only and does not establish that any external
+    action, settlement or payment occurred.
+  replay_class: no_replay
+  replay_class_notes: >
+    Anyone can verify the receipt signature with the published keys, but that
+    does not reproduce the evaluation. The receipt carries task_id_hash and the
+    verdict, not the submitted output or the declared condition. Pending the
+    maintainer's answer on what task_id_hash commits to: if it binds the
+    evaluation inputs, fingerprint_only applies.
   governed_action_class: compose
 
 verification:
@@ -126,9 +145,10 @@ composition:
     relationship: complementary_layer
     notes: >
       The continuity analyzer evaluates whether governance continuity should
-      hold before execution. SAR provides post-execution evidence of what was
-      actually executed. Together they form a layered model pairing pre-action
-      governance-survival inference with post-action outcome evidence.
+      hold before execution. SAR records, after a task, whether a submitted
+      output matched a declared condition. It does not establish what was
+      actually executed or settled. Together they pair pre-action
+      governance-survival inference with a post-action evaluation record.
 
 notes: >
   This crosswalk is intentionally scoped to the live DefaultVerifier /
@@ -141,6 +161,7 @@ notes: >
 limitations: >
   SAR alone does not determine whether an action should have happened, whether a
   governing policy was valid, or whether enforcement continuity held. It records
-  post-execution verification results. Identity verification, payment
+  the result of evaluating a submitted output against a declared condition, and
+  does not establish that a settlement or payment occurred. Identity verification, payment
   enforcement, dispute resolution, and longitudinal trust scoring remain outside
   SAR's scope and must be supplied by composing systems.

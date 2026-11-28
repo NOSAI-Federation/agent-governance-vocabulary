@@ -111,10 +111,10 @@ signal_types:
     notes: "Day 79 audit (2026-05-05): Maiat removed from issuers_in_production. PR #3 (issuer attribution swap) referenced Maiat in passing but no direct engagement, no crosswalk file, no issues or PRs filed by them. Status downgraded to proposed per CONTRIBUTING.md 2-implementation threshold."
 
   settlement_witness:
-    status: proposed
+    status: reserved
     review_by: "2026-12-08"
     review_exception: "Temporary exception, issue #284: review_by moved from 2026-11-23 to 2026-12-08 so validation passes while the review of this entry is open. This is not a re-date on fresh evidence and not a decision to keep the term."
-    promotion_trigger: 'A second independent implementation meeting the CONTRIBUTING criteria: independent maintainership, independent codebase, compatible emitted artifact, and a published fixture or conformance vector.'
+    promotion_trigger: 'Leaving reserved requires one production implementation whose emitted artifact attests a settlement event under this definition, with a published fixture or conformance vector a third party can check. Canonical further requires a second independent implementation meeting the CONTRIBUTING criteria.'
     definition: >
       Signed post-execution attestation that a settlement (a payment or value
       exchange for a delivered resource or task) occurred and was verified
@@ -129,14 +129,16 @@ signal_types:
       invariant_survival: post_action
       replay_class: full_replay
       governed_action_class: compose
-    issuers_in_production: ["SAR"]
+    issuers_in_production: []
     notes: |
-      Single-issuer (SAR) as of 2026-06-23. Proposed per CONTRIBUTING.md
-      2-implementation threshold; canonicalized when a second independent
-      implementation surfaces. SAR implementation: DefaultVerifier /
-      SettlementWitness signed receipts (see crosswalk/sar.yaml). This is an
-      AEOESS vocabulary term; the implementer-specific signing key and receipt
-      schema live in the crosswalk, not in this definition.
+      No issuer in production as of 2026-11-27. SAR was listed from
+      2026-06-23 until its maintainer recommended recalibrating its mapping
+      to false_analog (issue #284): SettlementWitness receipts attest the
+      evaluation of a declared condition, not the occurrence of a settlement
+      (see crosswalk/sar.yaml). The definition is unchanged. Reserved per
+      CONTRIBUTING.md: zero production implementations. At review_by the
+      default action for a reserved term is removal unless an implementation
+      has surfaced.
 
   peer_review:
     status: canonical
