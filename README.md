@@ -126,6 +126,8 @@ Committed contributors so far:
 - `crosswalk/sovereign-atom.yaml` - @AuthorPrime
 - `crosswalk/veritasacta.yaml` - @tomjwxf
 
+This contributor list is incomplete. The `crosswalk/` directory contains the current files, and the [crosswalk matrix](https://nosai-federation.github.io/agent-governance-vocabulary/) compares those that declare signal types and lists exclusions separately. Attribution appears in the individual files in different formats. A named system maintainer does not by itself establish authorship or endorsement of its crosswalk.
+
 ## Legacy descriptor overrides
 
 `scripts/legacy-descriptor-overrides.yaml` lists known-stale `(file, path, value)` combinations from crosswalks that pre-date a vocabulary resolution. The validator emits warnings (not errors) for these so contributor CI doesn't break on unrelated PRs to those files. As maintainers update their crosswalks, entries are removed.

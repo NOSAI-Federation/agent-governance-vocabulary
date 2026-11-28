@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Ask a question or look for collaborators
+    url: https://github.com/orgs/NOSAI-Federation/discussions
+    about: Questions, proposals that are not yet a term or a crosswalk, and requests for an independent run go to the federation discussions.
   - name: Report a security problem privately
     url: https://github.com/NOSAI-Federation/agent-governance-vocabulary/security/advisories/new
     about: Problems in the validators, the CI or the integrity of admitted records. Please do not open a public issue.
