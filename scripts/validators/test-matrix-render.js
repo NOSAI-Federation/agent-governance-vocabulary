@@ -107,6 +107,10 @@ const GOOD = [
   check('6. the page states the source commit', html.includes(`/commit/${sha}`) && html.includes(`content="${sha}"`))
   check('6. the Markdown states the source commit', md.includes(sha))
   check('6. the page is a complete HTML document', html.startsWith('<!doctype html>') && html.trimEnd().endsWith('</html>'))
+  const sitemapPath = path.join(dir, 'site', 'sitemap.xml')
+  const sitemap = r.exit === 0 && fs.existsSync(sitemapPath) ? fs.readFileSync(sitemapPath, 'utf8') : ''
+  check('6. the page has a description and a canonical address', /<meta name="description" content="[^"]+">/.test(html) && html.includes('<link rel="canonical" href="https://nosai-federation.github.io/agent-governance-vocabulary/">'))
+  check('6. the sitemap lists the page and carries no build date', sitemap.includes('<loc>https://nosai-federation.github.io/agent-governance-vocabulary/</loc>') && !sitemap.includes('<lastmod>'))
 }
 
 // 7. Text from crosswalk data is escaped in the page.

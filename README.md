@@ -2,7 +2,7 @@
 
 AI agent systems use different names, schemas and signed records for identity, authorization, delegation, revocation, trust and evidence. Agent Governance Vocabulary is a vendor-neutral reference for comparing them. It maps how each system names these governance signals onto one canonical set of terms, without asking anyone to rename their own system, and it records where two systems differ as carefully as where they match.
 
-The repository is kept in the [Federation of Neutral Open-Source AI Infrastructure](https://github.com/NOSAI-Federation), a group of independent open-source projects. Its [shared principles](PRINCIPLES.md) and the [rules for changing shared files](SHARED-DECISIONS.md) are in this repository.
+The repository is kept in the [Federation of Neutral Open-Source AI Infrastructure](https://github.com/NOSAI-Federation), a group of independent open-source projects. Its [shared principles](PRINCIPLES.md) and the [rules for changing shared files](SHARED-DECISIONS.md) are in this repository. Questions, proposals and requests for collaborators go to the [federation discussions](https://github.com/orgs/NOSAI-Federation/discussions).
 
 Every system names its own primitives, so the same signal travels under many labels. Here are five systems in this registry that issue what is canonically `behavioral_trust`, each under a different name:
 
