@@ -44,3 +44,7 @@ systems:
     headings: [evidence-and-receipts]
     confirmed_by: giskard09
     confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7232560870
+  - crosswalk: crosswalk/invinoveritas.yaml
+    headings: [evidence-and-receipts, commerce]
+    confirmed_by: babyblueviper1
+    confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7241531549
