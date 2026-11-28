@@ -113,6 +113,75 @@ const GOOD = [
   check('6. the sitemap lists the page and carries no build date', sitemap.includes('<loc>https://nosai-federation.github.io/agent-governance-vocabulary/</loc>') && !sitemap.includes('<lastmod>'))
 }
 
+// 6b. Systems by problem: the page is built only from a valid file, every
+// entry needs its maintainer's confirmation link, and text is escaped.
+{
+  const BP = [
+    'headings:',
+    '  evidence-and-receipts: {title: "Evidence <b>", about: "Records"}',
+    '  revocation: {title: Revocation, about: Withdraw}',
+    'systems:',
+    '  - crosswalk: crosswalk/good.yaml',
+    '    headings: [evidence-and-receipts]',
+    '    confirmed_by: someone',
+    '    confirmation: https://example.org/confirm',
+    '',
+  ].join('\n')
+  const dir = tree({ 'good.yaml': GOOD })
+  fs.writeFileSync(path.join(dir, 'systems-by-problem.yaml'), BP, 'utf8')
+  const r = run(['--site', path.join(dir, 'site'), '--root', dir])
+  const pagePath = path.join(dir, 'site', 'by-problem.html')
+  const page = r.exit === 0 && fs.existsSync(pagePath) ? fs.readFileSync(pagePath, 'utf8') : ''
+  const index = r.exit === 0 ? fs.readFileSync(path.join(dir, 'site', 'index.html'), 'utf8') : ''
+  const sm = r.exit === 0 ? fs.readFileSync(path.join(dir, 'site', 'sitemap.xml'), 'utf8') : ''
+  check('6b. a valid file builds the page', r.exit === 0 && page.includes('https://example.org/confirm') && page.includes('@someone'), r.out)
+  check('6b. heading text is escaped', page.includes('Evidence &lt;b&gt;') && !page.includes('Evidence <b>'))
+  check('6b. an empty heading says so', page.includes('No system is listed here yet.'))
+  check('6b. the matrix links the page and the sitemap lists it', index.includes('href="by-problem.html"') && sm.includes('by-problem.html</loc>'))
+
+  const none = tree({ 'good.yaml': GOOD })
+  const rn = run(['--site', path.join(none, 'site'), '--root', none])
+  check('6b. without the file no page is written and the matrix has no link', rn.exit === 0 && !fs.existsSync(path.join(none, 'site', 'by-problem.html')) && !fs.readFileSync(path.join(none, 'site', 'index.html'), 'utf8').includes('by-problem.html'), rn.out)
+
+  for (const [label, bad] of [
+    ['no confirmation link', BP.replace('    confirmation: https://example.org/confirm\n', '')],
+    ['an unknown heading', BP.replace('[evidence-and-receipts]', '[made-up]')],
+    ['a crosswalk that does not exist', BP.replace('crosswalk/good.yaml', 'crosswalk/absent.yaml')],
+    ['a path outside crosswalk/', BP.replace('crosswalk/good.yaml', '../vocabulary.yaml')],
+    ['a malformed confirmation link', BP.replace('https://example.org/confirm', 'https://?')],
+    ['a confirmation link with credentials', BP.replace('https://example.org/confirm', 'https://user:pw@example.org/x')],
+  ]) {
+    const d = tree({ 'good.yaml': GOOD })
+    fs.writeFileSync(path.join(d, 'systems-by-problem.yaml'), bad, 'utf8')
+    const rb = run(['--check', '--root', d])
+    check(`6b. ${label} fails the build`, rb.exit === 1 && /systems-by-problem\.yaml/.test(rb.out), rb.out)
+  }
+
+  // A symlink under crosswalk/ that points outside it is refused.
+  {
+    const d = tree({ 'good.yaml': GOOD })
+    const outside = path.join(d, 'outside.yaml')
+    fs.writeFileSync(outside, GOOD, 'utf8')
+    let linked = true
+    try { fs.symlinkSync(outside, path.join(d, 'crosswalk', '_link.yaml')) } catch (_) { linked = false }
+    if (linked) {
+      fs.writeFileSync(path.join(d, 'systems-by-problem.yaml'), BP.replace('crosswalk/good.yaml', 'crosswalk/_link.yaml'), 'utf8')
+      const rs = run(['--check', '--root', d])
+      check('6b. a symlink that leaves crosswalk/ fails the build', rs.exit === 1 && /does not exist inside crosswalk/.test(rs.out), rs.out)
+    }
+  }
+
+  // A hostile system name and source link in the crosswalk are escaped or dropped.
+  {
+    const HOSTILE = GOOD.replace('  name: Example', '  name: "<script>x</script>"\n  repo: "javascript:alert(1)"')
+    const d = tree({ 'good.yaml': HOSTILE })
+    fs.writeFileSync(path.join(d, 'systems-by-problem.yaml'), BP, 'utf8')
+    const rh = run(['--site', path.join(d, 'site'), '--root', d])
+    const pg = rh.exit === 0 ? fs.readFileSync(path.join(d, 'site', 'by-problem.html'), 'utf8') : ''
+    check('6b. a hostile system name is escaped and a non-https source is dropped', rh.exit === 0 && !pg.includes('<script>x') && !pg.includes('javascript:'), rh.out)
+  }
+}
+
 // 7. Text from crosswalk data is escaped in the page.
 {
   const dir = tree({ 'good.yaml': GOOD.replace('match: partial', 'match: "<img src=x onerror=alert(1)>"') })
