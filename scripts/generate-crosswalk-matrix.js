@@ -27,7 +27,7 @@ const { normalizeDoc, aliasesFromVocab } = require('./match-types')
 
 const REPO_ROOT = path.resolve(__dirname, '..')
 const DEFAULT_OUT = path.join(REPO_ROOT, '.generated', 'matrix', 'crosswalk-matrix.md')
-const REPO_URL = 'https://github.com/aeoess/agent-governance-vocabulary'
+const REPO_URL = 'https://github.com/NOSAI-Federation/agent-governance-vocabulary'
 const PAGES_URL = 'https://nosai-federation.github.io/agent-governance-vocabulary/'
 // The committed matrix was replaced by a pointer to the published page. An
 // older branch merging its full copy back would bring the stale-copy problem

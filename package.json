@@ -25,16 +25,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aeoess/agent-governance-vocabulary.git"
+    "url": "git+https://github.com/NOSAI-Federation/agent-governance-vocabulary.git"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/aeoess/agent-governance-vocabulary/issues"
+    "url": "https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues"
   },
-  "homepage": "https://github.com/aeoess/agent-governance-vocabulary#readme",
+  "homepage": "https://github.com/NOSAI-Federation/agent-governance-vocabulary#readme",
   "devDependencies": {
     "js-yaml": "^5.5.0"
   }
