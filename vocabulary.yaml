@@ -788,8 +788,11 @@ crosswalk_match_types:
 # The matrix shows each missing property by name in the cell.
 # `lacks` describes a property absent from the mapped artifact, not a
 # capability missing from the whole system. The declaration must rest on
-# pinned evidence or the implementing maintainer's confirmation. When `lacks`
-# is absent, a consumer treats the property's presence as unknown.
+# pinned evidence or the implementing maintainer's confirmation. A property
+# the reviewed sources do not mention is not lacking: declare it only when the
+# pinned artifact definition or its signed field list shows the property is
+# absent, or the maintainer confirms it. When `lacks` is absent, a consumer
+# treats the property's presence as unknown.
 crosswalk_mapping_fields:
   lacks:
     applies_to_match: ["partial"]
