@@ -37,7 +37,7 @@ system:
   name: KYA-OS (Know Your Agent Operating System)
   short_name: KYA-OS
   home: https://kya-os.org
-  spec: https://github.com/decentralized-identity/kya-os-mcp/blob/main/SPEC.md
+  spec: https://github.com/decentralized-identity/kya-os-mcp/blob/ffd3efa8582e306e8ef6cee5371ae7d3cdec0be6/SPEC.md
   spec_version: "KYA-OS Protocol Specification 1.0.0 (Stable), reference implementation @kya-os/mcp 1.22.0"
   repo: https://github.com/decentralized-identity/kya-os-mcp
   implementation: "TypeScript reference implementation @kya-os/mcp (MCP binding), audit module @kya-os/mcp/audit, JSON Schemas in schemas/ and decentralized-identity/kya-os-schema, conformance vectors in conformance/vectors"
@@ -95,6 +95,10 @@ signal_types:
     evidence: inferable
     inferred_from: ["outcome", "scopeId", "delegationRef"]
     inference_basis: >
+      This is a specification-level conditional mapping for proofs that
+      carry scopeId and delegationRef in the signed payload
+      (https://github.com/decentralized-identity/kya-os-mcp/blob/ffd3efa8582e306e8ef6cee5371ae7d3cdec0be6/SPEC.md#L955-L959,
+      https://github.com/decentralized-identity/kya-os-mcp/blob/ffd3efa8582e306e8ef6cee5371ae7d3cdec0be6/SPEC.md#L1046-L1050).
       The proof does not state that a requirement was satisfied. A consumer
       concludes it from an allowed outcome together with a scopeId and a
       delegationRef in the signed payload, and from the designation rule
@@ -106,8 +110,8 @@ signal_types:
       Overlap. The proof is signed by the server that gated the call, and
       "Every optional ProofMeta member present on the proof (scopeId,
       delegationRef, clientDid, outcome, reason, prf) appears in the
-      payload" (section 7.4), so the delegation scope that was checked is
-      under the signature. Denial and step-up proofs carry outcome,
+      payload" (SPEC.md:1046-1050 at the MCP pin above), so any supplied
+      scopeId and delegationRef are under the signature. Denial and step-up proofs carry outcome,
       optionally reason, and omit responseHash (section 7.4).
 
       Divergence. The canonical term attests that an action "satisfied a
@@ -120,6 +124,11 @@ signal_types:
       delegationRef does not by itself establish that a delegation was
       verified. Read as partial only for proofs that carry both
       scopeId and delegationRef. Open question 1.
+
+      The inspected reference middleware success path does not emit
+      delegationRef, so evidence: inferable cannot supply the operand
+      required by this mapping
+      (https://github.com/decentralized-identity/kya-os-mcp/blob/ffd3efa8582e306e8ef6cee5371ae7d3cdec0be6/src/middleware/with-kya-os.session.ts#L1113-L1117).
 
   bilateral_receipt:
     canonical: bilateral_receipt
@@ -220,6 +229,11 @@ decision_trajectory:
     evidence: emitted
     source_path: "kya-os-schema schemas/v1/protocol/audit/entry/v1.0.0.json properties previousEntryDigest, sequence, event; audit/event/v1.0.0.json properties authorization.decision and actor"
     notes: >
+      evidence: emitted applies only to the partial ledger-link primitive,
+      sequence and previousEntryDigest, required by the entry schema
+      (https://github.com/decentralized-identity/kya-os-schema/blob/c403ad03e018e1d5a8b3f7ae2b61795eb9e24a65/schemas/v1/protocol/audit/entry/v1.0.0.json#L7-L18)
+      and constructed by the recorder
+      (https://github.com/decentralized-identity/kya-os-mcp/blob/ffd3efa8582e306e8ef6cee5371ae7d3cdec0be6/src/audit/recorder-service.ts#L605-L624).
       An authoritative recorder "assigns recorder time, a monotonically
       increasing decimal sequence, the previous entry digest, and a signed
       append receipt" (section 15.3). Producer events may carry an
@@ -232,8 +246,11 @@ decision_trajectory:
       Partial on scope. The canonical lineage is decisions "affecting a
       single agent". The chain is per ledger and epoch, mixes decision
       events with session, key, checkpoint and retention events, and actor
-      is optional in the event schema. A per-agent lineage is a filter over
-      the ledger, not a chain of its own. Open question 3. Detached proofs
+      is optional in the event schema. A per-agent lineage is derived by
+      filtering the ledger and cannot be reconstructed reliably for events
+      without actor attribution
+      (https://github.com/decentralized-identity/kya-os-schema/blob/c403ad03e018e1d5a8b3f7ae2b61795eb9e24a65/schemas/v1/protocol/audit/event/v1.0.0.json#L54-L87).
+      It is not a chain of its own. Open question 3. Detached proofs
       "do not assign chain position" (AUDITABILITY.md).
 
   baseline_revision:
