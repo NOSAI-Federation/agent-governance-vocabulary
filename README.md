@@ -36,7 +36,7 @@ flowchart TD
     V --> D["Verifiers and tooling<br/>compose signals across systems<br/>without learning each one's dialect"]
 ```
 
-The crosswalk matrix shows every crosswalk that declares signal types against the vocabulary's signal types, with the counts, coverage and the crosswalks it excludes. It is generated from `main` and published at [aeoess.github.io/agent-governance-vocabulary/](https://aeoess.github.io/agent-governance-vocabulary/), which names the commit it was built from.
+The crosswalk matrix shows every crosswalk that declares signal types against the vocabulary's signal types, with the counts, coverage and the crosswalks it excludes. It is generated from `main` and published at [nosai-federation.github.io/agent-governance-vocabulary/](https://nosai-federation.github.io/agent-governance-vocabulary/), which names the commit it was built from.
 
 **Precedent:** the IANA JWT claim registry and JSON-LD `@context`. Each system keeps its internal code and its production envelope values. This repo provides the shared reference and the per-system mappings.
 
@@ -70,7 +70,7 @@ Renaming live signed envelope `type` values is explicitly out of scope - canonic
 
 Open a PR adding `crosswalk/<your-system>.yaml`. Use the match types from `vocabulary.yaml > crosswalk_match_types`. Partial match and non-equivalent-similar-label are encouraged - this layer exists to clarify differences, not hide them.
 
-See the [crosswalk matrix](https://aeoess.github.io/agent-governance-vocabulary/) for the system × signal-type match grid across the corpus. Run `npm run generate:matrix` to build it locally from your branch.
+See the [crosswalk matrix](https://nosai-federation.github.io/agent-governance-vocabulary/) for the system × signal-type match grid across the corpus. Run `npm run generate:matrix` to build it locally from your branch.
 
 Committed contributors so far:
 
@@ -97,6 +97,7 @@ Committed contributors so far:
 - `crosswalk/nobulex.yaml` - @arian-gogani
 - `crosswalk/pathcourse-health.yaml` - @alex-pathcourse
 - `crosswalk/pic.yaml` - @madeinplutofabio
+- `crosswalk/remora.yaml` - @darklordVirtual
 - `crosswalk/rfc-category-taxonomy.yaml` - reverse crosswalk mapping
   the ten MULTI-ATTESTATION-SPEC signal_types to the (proposed) A2A
   RFC trust evidence category taxonomy. Drafted on

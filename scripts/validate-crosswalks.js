@@ -157,7 +157,7 @@ function validateSystemAttributes(doc, file) {
   const attrs = doc.system_attributes
   if (!attrs || typeof attrs !== 'object') return
   for (const [attrName, value] of Object.entries(attrs)) {
-    const allowed = systemAttributeEnums[attrName]
+    const allowed = Object.prototype.hasOwnProperty.call(systemAttributeEnums, attrName) ? systemAttributeEnums[attrName] : null
     if (!allowed) {
       warn(file, `system_attributes.${attrName}: unknown attribute (canonical: ${Object.keys(systemAttributeEnums).join(', ')})`)
       continue
@@ -169,6 +169,79 @@ function validateSystemAttributes(doc, file) {
     }
     if (allowed.has(value)) continue
     err(file, `system_attributes.${attrName}: "${value}" not in vocabulary (allowed: ${[...allowed].join(', ')})`)
+  }
+}
+
+// record_profiles (proposed, #253 and #256): optional top-level list naming
+// records whose system attributes differ from the system_attributes values.
+// Fail closed on shape, because a verifier selects records by these values.
+const RECORD_PROFILE_SELECTORS = ['record_type', 'format_version']
+const own = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k)
+function validateRecordProfiles(doc, file) {
+  if (!doc || typeof doc !== 'object' || !own(doc, 'record_profiles')) return
+  const list = doc.record_profiles
+  if (!Array.isArray(list)) {
+    err(file, 'record_profiles: must be a list of entries (use [] to state that every record has the system_attributes values)')
+    return
+  }
+  // With record_profiles present, unmatched records take the system_attributes
+  // values, so those values are checked strictly here, on every format.
+  const sa = doc.system_attributes
+  let defaults = {}
+  if (own(doc, 'system_attributes')) {
+    if (!sa || typeof sa !== 'object' || Array.isArray(sa)) {
+      err(file, 'system_attributes: must be a mapping when record_profiles is present')
+    } else {
+      defaults = sa
+      for (const k of Object.keys(sa)) {
+        if (!own(systemAttributeEnums, k)) {
+          err(file, `system_attributes.${k}: not a system attribute, and record_profiles relies on these values (allowed: ${Object.keys(systemAttributeEnums).join(', ')})`)
+        } else if (typeof sa[k] !== 'string' || !systemAttributeEnums[k].has(sa[k])) {
+          err(file, `system_attributes.${k}: must be one string value from the vocabulary when record_profiles is present (allowed: ${[...systemAttributeEnums[k]].join(', ')})`)
+        }
+      }
+    }
+  }
+  const seen = new Set()
+  const kinds = new Set()
+  list.forEach((entry, i) => {
+    const at = `record_profiles[${i}]`
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      err(file, `${at}: must be a mapping`)
+      return
+    }
+    const selectors = RECORD_PROFILE_SELECTORS.filter(k => own(entry, k))
+    if (selectors.length !== 1) {
+      err(file, `${at}: must name exactly one of ${RECORD_PROFILE_SELECTORS.join(', ')} (found ${selectors.length})`)
+    } else {
+      const sel = selectors[0]
+      kinds.add(sel)
+      const v = entry[sel]
+      if (typeof v !== 'string' || v.trim().length === 0) {
+        err(file, `${at}.${sel}: must be a non-empty string`)
+      } else {
+        const key = `${sel}:${v.trim()}`
+        if (seen.has(key)) err(file, `${at}: duplicate ${sel} "${v.trim()}"`)
+        seen.add(key)
+      }
+    }
+    const attrKeys = Object.keys(entry).filter(k => !RECORD_PROFILE_SELECTORS.includes(k))
+    if (attrKeys.length === 0) err(file, `${at}: must set at least one system attribute`)
+    for (const k of attrKeys) {
+      if (!own(systemAttributeEnums, k)) {
+        err(file, `${at}.${k}: not a system attribute (allowed: ${Object.keys(systemAttributeEnums).join(', ')})`)
+        continue
+      }
+      const allowed = systemAttributeEnums[k]
+      if (typeof entry[k] !== 'string' || !allowed.has(entry[k])) {
+        err(file, `${at}.${k}: "${entry[k]}" not in vocabulary (allowed: ${[...allowed].join(', ')})`)
+        continue
+      }
+      if (own(defaults, k) && defaults[k] === entry[k]) warn(file, `${at}.${k}: same value as system_attributes, so the entry changes nothing`)
+    }
+  })
+  if (kinds.size > 1) {
+    err(file, 'record_profiles: entries mix record_type and format_version, so one record could match two entries. Use one kind of selector per crosswalk.')
   }
 }
 
@@ -418,6 +491,44 @@ function validateSignalTypes(doc, file) {
   }
 }
 
+// Prose annotations that may sit beside descriptor values: `note`, `notes`,
+// `<dimension>_notes` and `note_<anything>`. Every other key in a descriptor
+// block is expected to name a dimension in vocabulary.yaml.
+function isDescriptorNoteKey(name) {
+  return name === 'note' || name === 'notes' || name.endsWith('_notes') || name.startsWith('note_')
+}
+
+// `<prefix>_notes` must point at a real dimension: either its full name
+// (replay_class_notes) or its name without the last word (replay_notes), the
+// short form merged crosswalks use. A misspelled prefix (replay_clas_notes)
+// would otherwise pass as prose.
+function notesPrefixIsKnown(name) {
+  if (!name.endsWith('_notes')) return true
+  const prefix = name.slice(0, -'_notes'.length)
+  return Object.keys(descriptorEnums).some(dim =>
+    dim === prefix || dim.slice(0, dim.lastIndexOf('_')) === prefix)
+}
+
+// Every value any descriptor dimension allows, to catch a value written into
+// a prose key by mistake (replay_class_notes: decision_replay).
+function isDescriptorEnumValue(text) {
+  const t = text.trim()
+  return Object.values(descriptorEnums).some(allowed => allowed.has(t))
+}
+
+// A prose key is checked for the three mistakes that would hide a descriptor:
+// a non-text value, a `_notes` prefix that names no dimension, and a descriptor
+// value written as the whole note.
+function checkDescriptorNote(name, value, file, dotPath) {
+  if (typeof value !== 'string') {
+    err(file, `${dotPath}: a note must be prose text, got ${Array.isArray(value) ? 'array' : typeof value}`)
+  } else if (!notesPrefixIsKnown(name)) {
+    err(file, `${dotPath}: "${name.slice(0, -'_notes'.length)}" is not a descriptor dimension or its short form, so this note annotates nothing`)
+  } else if (isDescriptorEnumValue(value)) {
+    err(file, `${dotPath}: holds the descriptor value "${value.trim()}" as prose, so no dimension is set. Put the value under its dimension key.`)
+  }
+}
+
 // Validate a single descriptor block of shape { dim_name: value | [values] }.
 // dotPathPrefix is the dotted path used in diagnostic messages — keeps the
 // existing message format on the top-level nested-per-signal path while
@@ -426,17 +537,27 @@ function validateSignalTypes(doc, file) {
 function validateDescriptorBlock(block, file, dotPathPrefix) {
   if (!block || typeof block !== 'object') return
   for (const [dimName, value] of Object.entries(block)) {
-    if (dimName.endsWith('_notes')) continue
+    if (isDescriptorNoteKey(dimName)) {
+      checkDescriptorNote(dimName, value, file, `${dotPathPrefix}.${dimName}`)
+      continue
+    }
     const allowed = descriptorEnums[dimName]
-    if (!allowed) continue
+    if (!allowed) {
+      // A misspelled dimension used to pass silently, because nothing read it.
+      err(file, `${dotPathPrefix}.${dimName}: not a descriptor dimension in vocabulary.yaml (known: ${Object.keys(descriptorEnums).join(', ')}). Prose beside a value goes in a key named notes, <dimension>_notes or note_<name>.`)
+      continue
+    }
     const values = Array.isArray(value) ? value : [value]
     for (const v of values) {
-      if (typeof v !== 'string') continue
+      if (typeof v !== 'string') {
+        err(file, `${dotPathPrefix}.${dimName}: values must be strings from the vocabulary, got ${v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v}`)
+        continue
+      }
       if (allowed.has(v)) continue
       const dotPath = `${dotPathPrefix}.${dimName}`
       const override = isLegacyOverride(file, dotPath, v)
       if (override) {
-        warn(file, `${dotPath}: deprecated value "${v}" — ${override.note} See https://github.com/aeoess/agent-governance-vocabulary/issues/${override.resolution_issue}.`)
+        warn(file, `${dotPath}: deprecated value "${v}" — ${override.note} See https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/${override.resolution_issue}.`)
       } else {
         err(file, `${dotPath}: "${v}" not in vocabulary (allowed: ${[...allowed].join(', ')})`)
       }
@@ -452,14 +573,15 @@ function validateDescriptorBlock(block, file, dotPathPrefix) {
 //   mixed  — both appear in one block
 //   empty  — nothing to classify
 //
-// `*_notes` keys are prose annotations that occur in both shapes and are
-// already skipped by validateDescriptorBlock, so they do not vote on shape.
-// Counting them would make an annotated nested block look mixed.
+// Prose keys (see isDescriptorNoteKey) occur in both shapes and do not vote on
+// shape. Counting them would make an annotated nested block look mixed. They
+// are checked on their own: inside validateDescriptorBlock for a flat block,
+// and by validateDescriptors for a nested or note-only block.
 function classifyDescriptorShape(dims) {
   let nested = 0
   let flat = 0
   for (const [key, value] of Object.entries(dims)) {
-    if (key.endsWith('_notes')) continue
+    if (isDescriptorNoteKey(key)) continue
     if (value && typeof value === 'object' && !Array.isArray(value)) nested++
     else flat++
   }
@@ -497,8 +619,16 @@ function validateDescriptors(doc, file) {
       validateDescriptorBlock(dims, file, 'descriptor_dimensions')
     } else if (shape === 'nested') {
       for (const [sigKey, dimBlock] of Object.entries(dims)) {
+        if (isDescriptorNoteKey(sigKey)) continue
         if (!dimBlock || typeof dimBlock !== 'object') continue
         validateDescriptorBlock(dimBlock, file, `descriptor_dimensions.${sigKey}`)
+      }
+    }
+    // Top-level prose keys beside per-signal blocks, or in a block that holds
+    // only prose, are not reached by the walks above.
+    if (shape === 'nested' || shape === 'empty') {
+      for (const [key, value] of Object.entries(dims)) {
+        if (isDescriptorNoteKey(key)) checkDescriptorNote(key, value, file, `descriptor_dimensions.${key}`)
       }
     }
   }
@@ -666,6 +796,9 @@ function validateFile(file) {
   // Fail-closed reverify enforcement runs on every crosswalk shape, before the
   // type-specific early returns, so a stale cell fails regardless of format.
   validateReverify(doc, file, '')
+  // record_profiles is checked on every crosswalk shape, before the early
+  // returns below, so a malformed list cannot hide in a special format.
+  validateRecordProfiles(doc, file)
 
   if (doc.crosswalk_type === 'pairwise_composition') {
     validateSystemAttributes(doc, file)
