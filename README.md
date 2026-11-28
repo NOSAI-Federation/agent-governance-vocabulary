@@ -1,6 +1,8 @@
 # Agent Governance Vocabulary
 
-Agent Governance Vocabulary is a common reference for agent-governance systems. It maps how different systems name identity, authority, trust, receipts, replay, and other governance signals onto one canonical set of terms, without asking anyone to rename their own system.
+AI agent systems use different names, schemas and signed records for identity, authorization, delegation, revocation, trust and evidence. Agent Governance Vocabulary is a vendor-neutral reference for comparing them. It maps how each system names these governance signals onto one canonical set of terms, without asking anyone to rename their own system, and it records where two systems differ as carefully as where they match.
+
+The repository is kept in the [Federation of Neutral Open-Source AI Infrastructure](https://github.com/NOSAI-Federation), a group of independent open-source projects. Its [shared principles](PRINCIPLES.md) and the [rules for changing shared files](SHARED-DECISIONS.md) are in this repository.
 
 Every system names its own primitives, so the same signal travels under many labels. Here are five systems in this registry that issue what is canonically `behavioral_trust`, each under a different name:
 
@@ -39,6 +41,16 @@ flowchart TD
 The crosswalk matrix shows every crosswalk that declares signal types against the vocabulary's signal types, with the counts, coverage and the crosswalks it excludes. It is generated from `main` and published at [nosai-federation.github.io/agent-governance-vocabulary/](https://nosai-federation.github.io/agent-governance-vocabulary/), which names the commit it was built from.
 
 **Precedent:** the IANA JWT claim registry and JSON-LD `@context`. Each system keeps its internal code and its production envelope values. This repo provides the shared reference and the per-system mappings.
+
+## What a crosswalk does not establish
+
+A crosswalk row records how one system's name or record corresponds to a shared term, on the evidence basis the file states, which is either pinned public sources or the maintainer's own attestation. It does not establish any of the following.
+
+- That the system is secure or that its implementation is correct.
+- That two systems work together at runtime. Matching terms make systems comparable, and interoperation still has to be tested.
+- Conformance to an external standard.
+- Legal or regulatory compliance.
+- Membership in the federation or endorsement of the project. Listing is open to any system that meets the rules in [CONTRIBUTING.md](CONTRIBUTING.md), and taking part in shared decisions needs the project's own opt-in under [SHARED-DECISIONS.md](SHARED-DECISIONS.md).
 
 ## Who this is for
 

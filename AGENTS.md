@@ -69,6 +69,7 @@ This repo IS NOT:
 
 ## Related
 
-- APS SDK: https://github.com/aeoess/agent-passport-system
-- Website: https://aeoess.com
 - Contributing guide: `CONTRIBUTING.md` in this repo
+- Shared principles: `PRINCIPLES.md`
+- How shared files change: `SHARED-DECISIONS.md`
+- Crosswalk matrix: https://nosai-federation.github.io/agent-governance-vocabulary/
