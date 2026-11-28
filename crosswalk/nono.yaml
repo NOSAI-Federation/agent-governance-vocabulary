@@ -40,6 +40,8 @@ system:
   short_name: nono
   home: https://nono.sh
   spec: https://github.com/nolabs-ai/nono/blob/540850e3ca2cfd9ac09282b56ae21105a5eb3fcd/docs/cli/features/audit.mdx
+  # The predicate URI currently does not serve documentation (HTTP 404).
+  # Identifier source: https://github.com/nolabs-ai/nono/blob/540850e3ca2cfd9ac09282b56ae21105a5eb3fcd/crates/nono/src/audit.rs#L46-L47
   spec_version: "nono v0.82.0 line, audit Merkle scheme alpha, attestation predicate https://nono.sh/attestation/audit-session/alpha (version 1), approval webhook protocol v1"
   repo: https://github.com/nolabs-ai/nono
   implementation: "Rust, crates/nono (audit, trust, supervisor types) and crates/nono-cli (audit commands, approval runtime, platform policy), binary nono"
@@ -154,7 +156,13 @@ signal_types:
   reasoning_integrity:
     canonical: reasoning_integrity
     match: no_mapping
-    notes: "Records cover commands, capability requests, network and URL-open events. No reasoning content."
+    notes: >
+      The canonical attestation surface is the action, independent of a
+      wallet (the reasoning_integrity definition in vocabulary.yaml). The implementation records capability and
+      command decisions as events (crates/nono/src/audit.rs:49-109), but its
+      signed statement identifies a session and commits the session Merkle
+      root (crates/nono/src/audit.rs:1208-1237). No attestation with an
+      individual action as its subject was found in the search basis.
 
   cognitive_attestation:
     canonical: cognitive_attestation
@@ -229,16 +237,24 @@ decision_trajectory:
 
   baseline_revision:
     canonical: baseline_revision
-    internal: "platform_policy audit extension event, resolved-profile digest (managed sessions only)"
+    internal: "platform_policy audit extension event, resolved-profile digest (platform-attributed sessions, crates/nono-cli/src/platform_policy.rs:511-544 and crates/nono-cli/src/sandbox_prepare.rs:2009-2012)"
     match: partial
     evidence: emitted
     source_path: "platform_policy audit extension event, payload PolicySession { management_mode, assignment_version, assigned_profile, assigned_name, assigned_revision, assigned_digest, policy_source, effective_profile_digest, overrides, override_sources } (crates/nono-cli/src/platform_policy.rs lines 22 to 36), recorded by recorder.record_extension_event(\"platform_policy\", policy) in crates/nono-cli/src/supervised_runtime.rs line 310"
     notes: >
-      Managed sessions only. For a session under a managed policy
-      assignment the audit log includes a policy attribution event with the
-      profile ID, revision, assignment digest and, when available, a
-      resolved-profile digest. The supervisor writes it right after
-      session_started through record_extension_event, which appends it to
+      Platform-attributed sessions include enrolled audit_only sessions and
+      advisory local overrides when a profile is resolved. The specification
+      permits local policy in these modes
+      (docs/protocols/managed-policy-v2.md:19-23). The implementation retains
+      a policy session with policy_source set to local outside the platform
+      profile branch. Assigned profile fields can be absent or identify the
+      platform assignment rather than the local selection
+      (crates/nono-cli/src/platform_policy.rs:511-544). The loaded profile is
+      passed to with_effective_profile
+      (crates/nono-cli/src/sandbox_prepare.rs:2009-2012). The supervisor writes
+      the attribution event right after session_started when session.policy
+      is present (crates/nono-cli/src/supervised_runtime.rs:308-310),
+      through record_extension_event, which appends it to
       the same hash chain as other events. effective_profile_digest is
       "sha256:" plus the SHA-256 of the serde_json bytes of the finalized
       profile (with_effective_profile, platform_policy.rs).
@@ -249,7 +265,7 @@ decision_trajectory:
       finalized profile, not the complete OS sandbox or every command-line
       option" (managed-policy-v2.md). The canonical term is a behavioral
       baseline, and this is a policy reference. The reviewed material does
-      not establish an equivalent record for local profiles. The event is
+      not establish an equivalent record for unenrolled local profiles. The event is
       written only when the session carries a policy, and SessionMetadata
       and the attestation predicate carry no profile identity. Open
       question q2.
@@ -316,8 +332,9 @@ descriptor_dimensions:
     note_replay: >
       No replay_class is assigned. Command policy events keep argv_hash,
       env_name_hash and cwd_hash with redacted displays, and the log records
-      what was decided, but the profile in force is not bound for local
-      profiles. Registry criteria for decision_replay and fingerprint_only
+      what was decided, but the reviewed material does not establish a profile
+      binding for unenrolled local sessions (crates/nono-cli/src/platform_policy.rs:511-544).
+      Registry criteria for decision_replay and fingerprint_only
       are under discussion in #255 and #267.
     note_measurement: "No measurement_point is assigned. The attestation is per session, and session_boundary in this registry describes cross-session continuity."
 
@@ -332,7 +349,7 @@ nono_specific_terms:
   session_ledger: "Append-only ledger of completed sessions, chained by prev_chain, each entry committing a session_digest over protected session metadata."
   audit_attestation: "audit-attestation.bundle, keyed DSSE over an in-toto statement, predicate type https://nono.sh/attestation/audit-session/alpha. [signed record]"
   command_policy_summary: "Per-command allowed and denied rollup in session.json, covered by the session digest. \"a convenience view for listing sessions, not an independent record\"."
-  platform_policy_event: "Audit extension event for managed sessions with profile ID, revision, manifest digest and resolved-profile digest. [policy reference]"
+  platform_policy_event: "Audit extension event for platform-attributed sessions. Assigned profile fields can be absent or describe the platform assignment rather than the local selection (crates/nono-cli/src/platform_policy.rs:511-544). The resolved-profile digest is included when a profile is resolved (crates/nono-cli/src/sandbox_prepare.rs:2009-2012, crates/nono-cli/src/platform_policy.rs:440-455). [policy reference]"
 
 open_questions:
   q1: >
@@ -341,12 +358,8 @@ open_questions:
     session metadata and attestation bundles. Should this file pin the
     alpha labels as they are, or wait for the convention?
   q2: >
-    Does a local (unmanaged) profile leave any digest or identity of the
-    profile in the hash-chained log? The drafter found the
-    platform_policy event only for managed assignments, and nothing in
-    SessionMetadata or the attestation predicate. If local sessions carry
-    none, baseline_revision is partial for managed sessions and absent
-    otherwise.
+    Does an unenrolled local profile leave any digest or identity of the
+    profile in the hash-chained log?
   q3: >
     Which refusal_authority value the maintainers would assign to approval
     decisions: issuer (nono as the enforcing party), shared (backend and
