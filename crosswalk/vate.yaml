@@ -1,0 +1,177 @@
+# VATE v0.7.0: local admission and post-execution receipts
+system:
+  name: VATE
+  home: https://vate.rognalia.com/
+  repo: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope
+  spec: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/d96d31a2ecadca90a5c79cb8d3668e5390ee0177/docs/receipt-model-v0.3.md
+  spec_version: "v0.7.0 discussion-draft pre-release, VATE-AL2-Verifier-Admission-v0.3 profile"
+  role: >-
+    A service records which agent operation it allowed, narrowed or denied under its
+    local policy. A recipient can check whether a reported result refers to that same
+    decision and to the operation the service permitted.
+
+license: Apache-2.0
+maintainer:
+  github: Poke-nushi
+issuers_in_production: []
+
+scope:
+  source_root: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/tree/d96d31a2ecadca90a5c79cb8d3668e5390ee0177
+  vocabulary: https://github.com/NOSAI-Federation/agent-governance-vocabulary/blob/08d792a9d338d11dd193e54c435960c42d29ab5d/vocabulary.yaml
+  admission_schema: schemas/admission-receipt.schema.json
+  post_execution_schema: schemas/post-execution-receipt.schema.json
+  example: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/tree/d96d31a2ecadca90a5c79cb8d3668e5390ee0177/reference/request-binding/examples/purchase-cap
+  evidence_basis: >-
+    Public receipt schemas, specification and executable purchase-cap example at the
+    release commit above. File paths are relative to that commit. JSON fragments are
+    JSON Pointers. The example produces unsigned test records without dispatching a
+    purchase. Gap entries describe these two receipt types. Other profiles, external
+    evidence providers and deployment-specific extensions are outside this mapping.
+
+verification:
+  example_directory: reference/request-binding/examples/purchase-cap
+  admission_file: admission-receipt.json
+  result_file: post-execution.json
+  # JSON Pointers below apply to the designated file in the example directory.
+  admission_id:
+    admission: /receipt_id
+    result: /admission/receipt_id
+  admission_object_digest:
+    result: /admission/digest
+    basis: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/d96d31a2ecadca90a5c79cb8d3668e5390ee0177/reference/request-binding/CONTRACT.md#bytes-and-hashes
+    notes: >-
+      Compute SHA-256 over the complete admission receipt serialized as
+      vate-v0.3-fixture-json (sorted keys, compact separators, ASCII escapes,
+      UTF-8). The request_binding artifact references use the exact file bytes.
+  permitted_operation:
+    admission: /attenuation/effective_request_hash
+    result: /execution/effective_request_hash
+    notes: "In this narrowed example the effective hash differs from the original request hash at /request/input_hash."
+  reported_outcome:
+    result: /result/outcome
+  implementation: reference/request-binding/example.py
+  environment: reference/request-binding/README.md
+  command: >-
+    python3 reference/request-binding/example.py check
+    --bundle reference/request-binding/examples/purchase-cap
+    --expected-admission-request reference/request-binding/examples/purchase-cap/admission-request.json
+  checks: >-
+    The command uses the bundled admission request as the expected input. It
+    reproduces the local decision and checks the original and narrowed request
+    bodies. It checks the synthetic result's admission reference, transaction,
+    runtime and time window, and compares the reported side effects with the
+    effective limits. To check a particular request, pass the
+    exact admission request the recipient selected independently of the submitted
+    receipt to --expected-admission-request. Authenticating the issuer and
+    observing the purchase require separate evidence.
+  separate_signature_example: reference/recipient-signature-authority/README.md
+  signature_scope: >-
+    The separate recipient example verifies detached test signatures and applies the
+    recipient's issuer policy to a different receipt pair. The purchase-cap records
+    cited in this crosswalk are unsigned.
+  related_example:
+    source: https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/d96d31a2ecadca90a5c79cb8d3668e5390ee0177/docs/interop/receipt-protocol-store-reuse.md
+    notes: >-
+      In a separate trial, the Receipt Protocol developer retrieved the two R17
+      receipts from an in-memory store and ran VATE's existing checker on them.
+      The receipt bytes were unchanged, and the checker returned the same result.
+
+signal_types:
+  governance_attestation:
+    internal: "The verifier's local policy verdict on a specific request (unsigned in the example)"
+    match: partial
+    evidence: emitted
+    source_path: "reference/request-binding/examples/purchase-cap/admission-receipt.json#/decision/outcome"
+    notes: >-
+      The receipt carries the decision itself. In the example the verifier records
+      attenuate, identifies the policy in /policy, and reduces the permitted cap
+      from USD 120 to USD 25. In this profile a valid allow makes the original
+      operation eligible for handoff. A valid attenuate with
+      /attenuation/require_new_permit set to false makes only the narrower operation
+      eligible. The implementation's execution gate checks the remaining conditions.
+    divergence: >-
+      NOSAI's signal is a signed assertion that an agent or action satisfied a
+      declared requirement. VATE records a decision on the request before execution.
+      A denial or a requirement for a new permit leaves no operation eligible for
+      immediate handoff. The decision alone does not establish that an executed
+      operation met the policy. This example emits the verdict with /proof/format
+      set to none. Authenticating its issuer requires separate proof and a trust
+      decision by the recipient.
+
+  settlement_witness:
+    internal: "The runtime's reported purchase outcome"
+    match: false_analog
+    source_path: "reference/request-binding/examples/purchase-cap/post-execution.json#/result/outcome"
+    notes: >-
+      The agent's runtime reports success and a USD 24.50 side effect. The link to
+      the permitted operation identifies which purchase the runtime is reporting.
+      The example supplies no signed verdict that a payment settled on the expected terms.
+
+  bilateral_receipt:
+    internal: "A post-execution receipt referring to a separate admission receipt"
+    match: false_analog
+    source_path: "reference/request-binding/examples/purchase-cap/post-execution.json#/admission/digest"
+    notes: >-
+      One record cites the digest of the other. This pair does not carry both parties'
+      signatures over one shared preimage with a signed receipt purpose.
+
+  trust_verification:
+    internal: "A verifier's check of a referenced piece of evidence"
+    match: false_analog
+    source_path: "reference/request-binding/examples/purchase-cap/admission-receipt.json#/evidence/0/verification/result"
+    notes: >-
+      The value verified in this example concerns a local policy artifact. It does
+      not report the actor's identity grade, KYC status or principal endorsement.
+
+  wallet_state:
+    match: no_mapping
+    notes: "The purchase record includes an amount and a cap. Neither receipt attests to wallet holdings."
+  behavioral_trust:
+    match: no_mapping
+    notes: "One decision and one reported outcome supply no score of an agent's behavior over time."
+  wallet_intelligence:
+    match: no_mapping
+    notes: "The receipts contain no classification of a wallet's activity."
+  reasoning_integrity:
+    match: no_mapping
+    notes: "The verifier evaluates the requested action against policy. Neither record assesses the agent's reasoning in choosing it."
+  compliance_risk:
+    match: no_mapping
+    notes: "Policy reason codes explain a local decision. They contain no counterparty exposure score."
+  passport_grade:
+    match: no_mapping
+    notes: "The admission identifies an actor and principal. It carries no composite grade derived from passport issuance evidence."
+  security_posture:
+    match: no_mapping
+    notes: "Digests identify cited artifacts. Neither receipt assesses an artifact's security posture through a wallet lookup."
+  job_performance:
+    match: no_mapping
+    notes: "The result describes one operation. Neither record rates task performance against a wallet identity."
+  peer_review:
+    match: no_mapping
+    notes: "The result in this pair is a runtime report. Neither record contains the delegator's review of the executor's delivery."
+  completion_ratio:
+    match: no_mapping
+    notes: "Neither record counts completed and total delegations over an observation window."
+  entity_continuity:
+    match: no_mapping
+    notes: "The receiver compares runtime identifiers within one operation. These records do not prove identity continuity across a key or host change."
+  cognitive_attestation:
+    match: no_mapping
+    notes: "The input and effective-request hashes bind operation data. They do not commit to the agent's reasoning state."
+
+decision_trajectory:
+  decision_lineage:
+    match: false_analog
+    source_path: "reference/request-binding/examples/purchase-cap/post-execution.json#/admission/digest"
+    notes: "This link joins a result to one decision. It does not order successive decisions for an agent by predecessor hash."
+  baseline_revision:
+    match: false_analog
+    source_path: "reference/request-binding/examples/purchase-cap/admission-receipt.json#/policy/policy_version"
+    notes: "This version identifies the local admission policy. It does not identify a baseline used to measure behavior over time."
+  divergence_signal:
+    match: no_mapping
+    notes: "A narrower permitted request records a policy change to the request, without measuring deviation from a behavioral baseline."
+  trust_velocity:
+    match: no_mapping
+    notes: "Neither receipt reports a trust score or its rate of change."
