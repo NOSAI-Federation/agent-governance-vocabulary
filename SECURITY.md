@@ -4,7 +4,7 @@ This repository holds the Agent Governance Vocabulary: the vocabulary file, the 
 
 ## Reporting
 
-Report privately: https://github.com/aeoess/agent-governance-vocabulary/security/advisories
+Report privately: https://github.com/NOSAI-Federation/agent-governance-vocabulary/security/advisories
 
 Email: security@aeoess.com
 
