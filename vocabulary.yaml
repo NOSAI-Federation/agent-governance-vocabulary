@@ -568,6 +568,11 @@ system_attributes:
       Two systems with project-specification do not use compatible rules
       unless their profiles say so.
 
+      This value records where the rule is defined, not whether an
+      implementation follows it. When a checked implementation does not
+      follow the declared rule, the crosswalk says so in `notes`, as
+      crosswalk/anp.yaml does for RFC 8785.
+
   hash_family:
     question: "What hash family does this system use in its signature pipeline?"
     values: ["sha-256", "sha-384", "sha-512", "sha3-256", "blake2b", "blake3"]
