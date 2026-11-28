@@ -1,39 +1,31 @@
 # agent-governance-vocabulary
 
-> Canonical vocabulary for agent-governance terminology. Coordinates shared semantic ground across APS, SINT, AgentID, AgentGraph, MolTrust, ScopeBlind, and other governance-adjacent projects. Crosswalks under `crosswalk/` map one project's native terms into the vocabulary. Apache-2.0.
+> Vendor-neutral vocabulary and crosswalk registry for AI agent governance, kept in the Federation of Neutral Open-Source AI Infrastructure (NOSAI-Federation). Each system keeps its own names. A crosswalk file under `crosswalk/` maps a system's records onto the shared terms and says where the fit is exact, structural, partial, a false analog, or missing. Apache-2.0.
 
-This is a neutral-ground repo. Multiple vendors contribute. The neutrality is the value. APS's crosswalk sits alongside SINT's, AgentID's, AgentGraph's, and others, with equal standing.
+No project has special standing in this repository. Crosswalks document systems and their sources under the same contribution rules.
+
+A crosswalk records how names and records correspond. It does not establish that a system is secure, that its implementation is correct, that it conforms to a standard, that it works with another system at runtime, or that the project takes part in the federation's shared decisions.
 
 ## Structure
 
-- `vocabulary.yaml`: the single canonical term file
-- `crosswalk/<project>.yaml`: per-project mappings into the vocabulary
-- `fixtures/`: test vectors referencing term ids from `vocabulary.yaml`
-- `docs/`: crosswalk format, rationale notes, contribution guides
+- `vocabulary.yaml`: signal types, descriptor dimensions, system attributes, match types and evidence states
+- `vocabulary-lifecycle.yaml`: incubating, descriptive concepts for the authority lifecycle, including agent identity, delegated authority, suspension, revocation and evidence
+- `vocabulary-settlement.yaml`: incubating verbs for payment and settlement records
+- `crosswalk/`: per-system mappings onto the vocabulary, pairwise mappings between two systems, and other documented crosswalk formats
+- `fixtures/`: test vectors and worked examples that reference vocabulary terms
+- `docs/`: rationale notes and proposals
+- `scripts/`: the validator and the matrix generator that CI runs
 
-## Canonical references
+## Start here
 
-- [README.md](README.md): vocabulary overview
-- [CONTRIBUTING.md](CONTRIBUTING.md): how to contribute a crosswalk
-- [AGENTS.md](AGENTS.md): instructions for AI coding agents working on this repo, including the 5-check crosswalk PR protocol
-- [CLAUDE.md](CLAUDE.md): pointer to AGENTS.md for Claude Code
+- [README.md](README.md): what the vocabulary is and what a crosswalk row looks like
+- [Crosswalk matrix](https://nosai-federation.github.io/agent-governance-vocabulary/): the crosswalks that declare signal types, compared against the signal types in `vocabulary.yaml`, with alternative formats and exclusions listed separately. Rebuilt from `main` on each merge
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to add a crosswalk or propose a term, and how review works
+- [PRINCIPLES.md](PRINCIPLES.md): the federation's shared principles
+- [SHARED-DECISIONS.md](SHARED-DECISIONS.md): how shared files change and which projects opted in to those decisions
+- [SECURITY.md](SECURITY.md): how to report a problem in the validators, CI or admitted records
+- [AGENTS.md](AGENTS.md): instructions for AI coding agents working on this repository
 
-## Related projects
+## Systems and their sources
 
-- APS SDK: https://github.com/aeoess/agent-passport-system
-- Website: https://aeoess.com
-
-## Papers
-
-Context papers from APS, which this vocabulary serves as one of several crosswalked protocols:
-
-- The Agent Social Contract: https://doi.org/10.5281/zenodo.18749779
-- Monotonic Narrowing: https://doi.org/10.5281/zenodo.18932404
-- Faceted Authority Attenuation: https://doi.org/10.5281/zenodo.19260073
-- Behavioral Derivation Rights: https://doi.org/10.5281/zenodo.19476002
-- Physics-Enforced Delegation: https://doi.org/10.5281/zenodo.19478584
-- Governance in the Medium: https://doi.org/10.5281/zenodo.19582550
-- Cognitive Attestation: https://doi.org/10.5281/zenodo.19646276
-- The Evidence-Safety Gap: https://doi.org/10.5281/zenodo.19914628
-- Plausibly Wrong: https://doi.org/10.5281/zenodo.21208555
-- IETF Internet-Draft: https://datatracker.ietf.org/doc/draft-pidlisnyi-aps/
+The list of systems is the `crosswalk/` directory. References to a system's specification, repository or papers belong in that system's own crosswalk file, so no project's material is listed here ahead of another's.
