@@ -28,6 +28,9 @@ const { normalizeDoc, aliasesFromVocab } = require('./match-types')
 const REPO_ROOT = path.resolve(__dirname, '..')
 const DEFAULT_OUT = path.join(REPO_ROOT, '.generated', 'matrix', 'crosswalk-matrix.md')
 const REPO_URL = 'https://github.com/NOSAI-Federation/agent-governance-vocabulary'
+const SITE_URL = 'https://nosai-federation.github.io/agent-governance-vocabulary/'
+const SITE_TITLE = 'Crosswalk Matrix | Agent Governance Vocabulary'
+const SITE_DESCRIPTION = 'Crosswalks compared against the Agent Governance Vocabulary signal types, with mapping strengths, declared gaps and exclusions.'
 const PAGES_URL = 'https://nosai-federation.github.io/agent-governance-vocabulary/'
 // The committed matrix was replaced by a pointer to the published page. An
 // older branch merging its full copy back would bring the stale-copy problem
@@ -298,7 +301,13 @@ function renderHtml(model, opts = {}) {
   const h = []
   h.push('<!doctype html>')
   h.push('<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">')
-  h.push('<title>Crosswalk Matrix</title>')
+  h.push(`<title>${esc(SITE_TITLE)}</title>`)
+  h.push(`<meta name="description" content="${esc(SITE_DESCRIPTION)}">`)
+  h.push(`<link rel="canonical" href="${esc(SITE_URL)}">`)
+  h.push('<meta property="og:type" content="website">')
+  h.push(`<meta property="og:title" content="${esc(SITE_TITLE)}">`)
+  h.push(`<meta property="og:description" content="${esc(SITE_DESCRIPTION)}">`)
+  h.push(`<meta property="og:url" content="${esc(SITE_URL)}">`)
   h.push(`<meta name="source-commit" content="${esc(sha || '')}">`)
   h.push('<style>')
   h.push(':root{--bg:#fff;--fg:#1a1a1a;--muted:#5c5c5c;--line:#d9d9d9;--head:#f4f4f4;--link:#0b57d0}')
@@ -312,6 +321,7 @@ function renderHtml(model, opts = {}) {
   h.push('table.cov td{text-align:left}')
   h.push('</style></head><body>')
   h.push('<h1>Crosswalk Matrix</h1>')
+  h.push(`<p>Part of the <a href="${esc(REPO_URL)}">Agent Governance Vocabulary</a>, kept in the <a href="https://github.com/NOSAI-Federation">Federation of Neutral Open-Source AI Infrastructure</a>. Each row is one crosswalk file. A match records how names and records correspond. It does not establish that a system is secure, correct or compatible with another at runtime. Questions go to the <a href="https://github.com/orgs/NOSAI-Federation/discussions">federation discussions</a>.</p>`)
   h.push(`<p>Generated on ${esc(date)}${src}. ${n} systems × ${names.length} signal types (${esc(statusSummary(model.statusCounts))}).</p>`)
   h.push('<h2>Cell legend</h2><ul>')
   h.push(`<li>${BADGE.exact} <code>exact</code>: same question, same surface shape</li>`)
@@ -459,7 +469,9 @@ function main() {
     fs.mkdirSync(site, { recursive: true })
     fs.writeFileSync(path.join(site, 'index.html'), html, 'utf8')
     fs.writeFileSync(path.join(site, 'crosswalk-matrix.md'), md, 'utf8')
-    console.log(`generate-crosswalk-matrix: wrote ${site}/index.html and crosswalk-matrix.md`)
+    // A sitemap so search engines can find the page.
+    fs.writeFileSync(path.join(site, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE_URL}</loc></url>\n</urlset>\n`, 'utf8')
+    console.log(`generate-crosswalk-matrix: wrote ${site}/index.html, crosswalk-matrix.md and sitemap.xml`)
     return
   }
   fs.mkdirSync(path.dirname(DEFAULT_OUT), { recursive: true })
