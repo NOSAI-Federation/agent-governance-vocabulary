@@ -45,5 +45,9 @@ check('9. a sibling directory with the root as a prefix is outside', !isInside('
 check('10. a path that escapes the root is outside', !isInside(W.resolve(WROOT, '..', 'other', 'a.yaml'), WROOT, W))
 check('11. a "/" separated path is not treated as inside a Windows root', !isInside('C:/work/agent-governance-vocabulary/a.yaml', WROOT, W))
 
+const allowed = new Set([...overrides.map(o => o.file), ...legacy])
+check('12. a crosswalk that is not on either allowlist does not match on Windows', !allowed.has(relPosix(WROOT, toWin('crosswalk/not-allowlisted.yaml'), W)))
+check('13. a file whose name only extends an allowlisted name does not match on Windows', !allowed.has(relPosix(WROOT, toWin(`${legacy[0]}.bak`), W)) && !allowed.has(relPosix(WROOT, toWin(`${overrides[0].file}.bak`), W)))
+
 console.log(`\n${passed} passed, ${failed} failed`)
 process.exit(failed === 0 ? 0 : 1)
