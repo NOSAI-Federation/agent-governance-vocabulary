@@ -1,0 +1,46 @@
+# Systems listed by the problem they address.
+#
+# This file is a navigation aid for the published site. It adds no claim about
+# a system beyond the heading its own maintainer chose, and it says nothing
+# about two systems being equivalent. There is no score and no ranking.
+#
+# Rules for an entry:
+#   - It points at an existing crosswalk file.
+#   - Its headings come from the list below.
+#   - `confirmed_by` is a maintainer of the system, and `confirmation` links the
+#     public comment or pull request where that maintainer chose the headings.
+#   - Review checks that the linked statement comes from the system's maintainer
+#     and names those headings before the entry is merged.
+#   - A maintainer can change or remove their system's entry by pull request or
+#     by asking in an issue.
+# This is not a shared file under SHARED-DECISIONS.md.
+
+headings:
+  identity-and-authority:
+    title: Identity and authority
+    about: Identify an agent and determine who may authorize it.
+  revocation:
+    title: Revocation
+    about: Withdraw authority and check revocation status.
+  evidence-and-receipts:
+    title: Evidence and receipts
+    about: Records of decisions and actions that someone else can check.
+  commerce:
+    title: Commerce
+    about: Authorize and account for payments, refunds and settlement.
+  physical-ai:
+    title: Physical AI
+    about: Agents that act on devices, sensors and equipment.
+  provenance:
+    title: Provenance
+    about: Where data and work came from and who contributed.
+
+systems:
+  - crosswalk: crosswalk/aeoess-aps.yaml
+    headings: [identity-and-authority, revocation, evidence-and-receipts]
+    confirmed_by: aeoess
+    confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7232780692
+  - crosswalk: crosswalk/mycelium-trails.yaml
+    headings: [evidence-and-receipts]
+    confirmed_by: giskard09
+    confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7232560870

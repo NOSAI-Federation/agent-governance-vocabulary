@@ -24,6 +24,7 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 const { normalizeDoc, aliasesFromVocab } = require('./match-types')
+const byProblem = require('./by-problem')
 
 const REPO_ROOT = path.resolve(__dirname, '..')
 const DEFAULT_OUT = path.join(REPO_ROOT, '.generated', 'matrix', 'crosswalk-matrix.md')
@@ -324,7 +325,7 @@ function renderHtml(model, opts = {}) {
   h.push('table.cov td{text-align:left}')
   h.push('</style></head><body>')
   h.push('<h1>Crosswalk Matrix</h1>')
-  h.push(`<p>Part of the <a href="${esc(REPO_URL)}">Agent Governance Vocabulary</a>, kept in the <a href="https://github.com/NOSAI-Federation">Federation of Neutral Open-Source AI Infrastructure</a>. Each row is one crosswalk file. A match records how names and records correspond. It does not establish that a system is secure, correct or compatible with another at runtime. Questions go to the <a href="https://github.com/orgs/NOSAI-Federation/discussions">federation discussions</a>.</p>`)
+  h.push(`<p>Part of the <a href="${esc(REPO_URL)}">Agent Governance Vocabulary</a>, kept in the <a href="https://github.com/NOSAI-Federation">Federation of Neutral Open-Source AI Infrastructure</a>. Each row is one crosswalk file. A match records how names and records correspond. It does not establish that a system is secure, correct or compatible with another at runtime. Questions go to the <a href="https://github.com/orgs/NOSAI-Federation/discussions">federation discussions</a>.${opts.byProblem ? ' To find systems by the problem they address, see <a href="by-problem.html">systems by problem</a>.' : ''}</p>`)
   h.push(`<p>Generated on ${esc(date)}${src}. ${n} systems × ${names.length} signal types (${esc(statusSummary(model.statusCounts))}).</p>`)
   h.push('<h2>Cell legend</h2><ul>')
   h.push(`<li>${BADGE.exact} <code>exact</code>: same question, same surface shape</li>`)
@@ -453,9 +454,15 @@ function main() {
     for (const p of pointer) console.error(`  ${p}`)
     process.exit(1)
   }
+  const problems0 = byProblem.load(root)
+  if (problems0.errors.length > 0) {
+    console.error('generate-crosswalk-matrix: systems-by-problem.yaml is not valid')
+    for (const e of problems0.errors) console.error(`  ${e}`)
+    process.exit(1)
+  }
   const model = buildModel(inputs)
   const md = renderMarkdown(model, { sourceSha })
-  const html = renderHtml(model, { sourceSha })
+  const html = renderHtml(model, { sourceSha, byProblem: problems0.present })
   const problems = checkOutput(model, md, html, legacySpellingsFromVocab(root))
   if (problems.length > 0) {
     console.error('generate-crosswalk-matrix: output contract failed')
@@ -473,7 +480,12 @@ function main() {
     fs.writeFileSync(path.join(site, 'index.html'), html, 'utf8')
     fs.writeFileSync(path.join(site, 'crosswalk-matrix.md'), md, 'utf8')
     // A sitemap so search engines can find the page.
-    fs.writeFileSync(path.join(site, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${SITE_URL}</loc></url>\n</urlset>\n`, 'utf8')
+    const pages = [SITE_URL]
+    if (problems0.present) {
+      fs.writeFileSync(path.join(site, 'by-problem.html'), byProblem.renderHtml(problems0, { repoUrl: REPO_URL, siteUrl: SITE_URL, sourceSha }), 'utf8')
+      pages.push(`${SITE_URL}by-problem.html`)
+    }
+    fs.writeFileSync(path.join(site, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map(u => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`, 'utf8')
     console.log(`generate-crosswalk-matrix: wrote ${site}/index.html, crosswalk-matrix.md and sitemap.xml`)
     return
   }

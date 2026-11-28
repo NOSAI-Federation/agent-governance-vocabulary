@@ -82,7 +82,7 @@ Renaming live signed envelope `type` values is explicitly out of scope - canonic
 
 Open a PR adding `crosswalk/<your-system>.yaml`. Use the match types from `vocabulary.yaml > crosswalk_match_types`. Partial match and non-equivalent-similar-label are encouraged - this layer exists to clarify differences, not hide them.
 
-See the [crosswalk matrix](https://nosai-federation.github.io/agent-governance-vocabulary/) for the system × signal-type match grid across the corpus. Run `npm run generate:matrix` to build it locally from your branch.
+See the [crosswalk matrix](https://nosai-federation.github.io/agent-governance-vocabulary/) for the system × signal-type match grid across the corpus, or [find systems by problem](https://nosai-federation.github.io/agent-governance-vocabulary/by-problem.html). Run `npm run generate:matrix` to build it locally from your branch.
 
 Committed contributors so far:
 
