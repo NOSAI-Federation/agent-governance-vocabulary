@@ -48,7 +48,7 @@ system:
     action", with an authority_ref to "the grant, delegation, or
     authorization under which the agent acted" (§3.1). Signing keys are
     named by signer_kid, an RFC 7638 thumbprint (§3.2).
-  upstream_license: "Draft text under the IETF Trust provisions. aat-conformance is BUSL-1.1. No license file or PyPI license field found for aat-mcp."
+  upstream_license: "Draft text under the IETF Trust provisions. aat-conformance is BUSL-1.1. aat-mcp 0.1.0 declares Apache-2.0 in PyPI metadata. No separate license file was found in the wheel. Sources: https://pypi.org/pypi/aat-mcp/0.1.0/json and https://files.pythonhosted.org/packages/ce/d6/2bba03334eff989d729d63872f5c99c1f04bc75f26fa39c468ae319d2097/aat_mcp-0.1.0-py3-none-any.whl#sha256=6e38da71accd98317bb3c9ef7da9ae547bd9206d74bf5b7d68d86efde69deb7e (aat_mcp-0.1.0.dist-info/METADATA:6)."
 
 license: Apache-2.0
 
@@ -62,7 +62,8 @@ maintainer:
   third_party_authored: true
 
 # signature_capability: signatures are OPTIONAL ("records MAY include a
-# signature", §6.2). "ES256" is the default and is assumed when sig_alg is
+# signature", §6.2), except that independent recorders MUST sign (§5.2,
+# draft-sharif-agent-audit-trail-11.txt:1056-1060). "ES256" is the default and is assumed when sig_alg is
 # absent. ML-DSA-65 and Ed25519 are registered, and a hybrid mode carries an
 # ML-DSA-65 signature plus an ES256 signature_classical "produced by two
 # distinct keys" (§3.2, §6.2). classical is declared for the default, and the
@@ -99,8 +100,9 @@ signal_types:
     evidence: emitted
     source_path: outcome
     notes: >
-      A pre-execution decision record states that a policy check ran before
-      the action. In the draft's words, if the outcome is "denied", "the
+      A decision record records a pre-execution authorisation
+      decision (§4.1, draft-sharif-agent-audit-trail-11.txt:948-953).
+      In the draft's words, if the outcome is "denied", "the
       record proves that the action was evaluated and rejected prior to
       execution", and a "success" record "proves that an authorisation
       decision was made before execution" (§4.1). A denied or escalated
@@ -111,10 +113,13 @@ signal_types:
 
       Partial, for four stated reasons. (1) The policy is named by an
       optional string, policy_ref, "Identifier of the policy or rule that
-      governed this decision" (§7.3), with no digest. Only the trust-level
-      classification policy carries one (trust_assignment.policy_digest,
-      §3.2). (2) The signature is optional ("records MAY include a
-      signature", §6.2), and at L0 and L1 the agent may record itself, which
+      governed this decision" (§7.3, draft-sharif-agent-audit-trail-11.txt:1529-1530).
+      The limitation is an absent policy identifier, not an absent digest.
+      The canonical definition requires no policy digest (the governance_attestation definition in vocabulary.yaml).
+      (2) The signature is optional ("records MAY include a signature", §6.2),
+      except that independent recorders MUST sign (§5.2,
+      draft-sharif-agent-audit-trail-11.txt:1056-1060).
+      At L0 and L1 the agent may record itself, which
       the draft says "provides weaker evidentiary guarantees because the
       agent could, in principle, omit or alter records of its own actions
       without external detection" (§5.1). (3) The record is the recorder's
@@ -187,7 +192,8 @@ signal_types:
       distinct keys" (§3.2). Both keys belong to one signing principal
       during a post-quantum migration. Under independent recording the
       recorder signs with "its own key, distinct from the agent's key"
-      (§5.2), and the agent does not sign the record at all. Neither gives
+      (§5.2). Independent recording does not require the agent's
+      countersignature (§5.2, draft-sharif-agent-audit-trail-11.txt:1051-1060). Neither gives
       the canonical requirement of both parties' signatures over one
       canonicalized preimage. Recorded as false_analog because the
       two-signature shape could be wired up as a bilateral receipt.
@@ -378,7 +384,7 @@ descriptor_dimensions:
       marks every other recorded decision "reconstructable". That reads as
       decision_replay versus fingerprint_only, but the registry has no
       per-class criteria yet (question raised on
-      aeoess/agent-governance-vocabulary#231), so the reading is offered as
+      https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/255), so the reading is offered as
       open question 4 instead of being declared.
     note_action_class: >
       governed_action_class left unset. action_type is a taxonomy of
@@ -441,17 +447,17 @@ open_questions:
   - id: 3
     topic: governance_attestation
     question: >
-      Is policy_ref meant to stay an identifier only, or is a digest of the
-      governing policy in scope (as trust_assignment.policy_digest is for
-      the classification policy)? With a digest the governance_attestation
-      row would lose its first partial reason.
+      Is policy_ref meant to stay optional (§7.3,
+      draft-sharif-agent-audit-trail-11.txt:1529-1530), or should the governing
+      policy always be identified? Requiring the identifier would address
+      the first partial reason in the governance_attestation row.
   - id: 4
     topic: replay_class
     question: >
       Does reading reproducibility_class "reproducible" as decision_replay
       and "reconstructable" as fingerprint_only match your intent? This
       registry has an open discussion on the criteria for those classes
-      (#231), and §13.2 is the most explicit set of conditions we have seen.
+      (https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/255), and §13.2 is the most explicit set of conditions we have seen.
   - id: 5
     topic: signature_capability
     question: >
