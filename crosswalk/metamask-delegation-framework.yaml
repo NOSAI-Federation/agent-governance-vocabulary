@@ -18,7 +18,8 @@
 #   not read.
 # Standard read, ethereum/ERCs ERCS/erc-7710.md (last change be46db7,
 #   2025-06-10, status Draft). ERCS/erc-7715.md fetched for the request
-#   layer, not mapped here. Hashes in src/SHA256SUMS.
+#   layer at be46db7fef10e4413216b2f5c2b98773dffa717f, not mapped here:
+#   https://github.com/ethereum/ERCs/blob/be46db7fef10e4413216b2f5c2b98773dffa717f/ERCS/erc-7715.md#L1
 #
 # This is a third-party crosswalk drafted by aeoess (maintainer of this
 # registry), not by the framework's authors. It is offered for them to
@@ -168,7 +169,7 @@ signal_types:
   completion_ratio:
     canonical: completion_ratio
     match: no_mapping
-    notes: "No aggregate completion metric. LimitedCallsEnforcer counts redemptions as a limit, not a metric."
+    notes: "No aggregate completion metric."
 
   entity_continuity:
     canonical: entity_continuity
@@ -251,11 +252,9 @@ descriptor_dimensions:
       the result also requires the execution context and historical state,
       including ERC-1271 validation, disabled delegations and enforcer state.
       No replay_class is assigned from the mapped evidence.
-    governed_action_class: delegate
     note_governed_action: >
-      delegate names the authority mechanism being governed, a grant that a
-      redeemer exercises. The call each redemption executes can be a
-      transfer or any other write, and this value does not classify it.
+      The action class depends on the execution calldata forwarded by the
+      manager (https://github.com/MetaMask/delegation-framework/blob/b4b8c41fc912455a1af2300bfcd1276676b92a2e/src/DelegationManager.sol#L251-L253).
 
 delegation_framework_specific_terms:
   delegation: "Delegation(delegate, delegator, authority, caveats, salt, signature), signed offchain with EIP-712. 'A delegation is an authority given to another address to perform a specific action.' (ERC-7710)"
@@ -266,4 +265,4 @@ delegation_framework_specific_terms:
   root_authority: "authority = ROOT_AUTHORITY (bytes32 all ones) marks a delegation from the account itself."
   disable_delegation: "disableDelegation and enableDelegation, onchain, keyed by the delegation hash. Reversible by the delegator."
   self_authorized_execution: "An empty permission context is 'a self authorized execution' and calls executeFromExecutor on msg.sender."
-  request_layer: "ERC-7715 wallet_grantPermissions, 'Request Permissions from Wallets', requires ERC-7710. Not mapped in this file."
+  request_layer: "ERC-7715 wallet_grantPermissions, 'Grant Permissions from Wallets', requires ERC-7710 (https://github.com/ethereum/ERCs/blob/be46db7fef10e4413216b2f5c2b98773dffa717f/ERCS/erc-7715.md#L1). Not mapped in this file."
