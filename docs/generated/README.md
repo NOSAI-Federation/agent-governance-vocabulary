@@ -4,7 +4,7 @@ Generated output is not committed. It is built from the canonical vocabulary and
 
 ## Crosswalk matrix
 
-Published from `main` at https://aeoess.github.io/agent-governance-vocabulary/. `crosswalk-matrix.md` in this directory is a pointer to it, kept so existing links still resolve.
+Published from `main` at https://nosai-federation.github.io/agent-governance-vocabulary/. `crosswalk-matrix.md` in this directory is a pointer to it, kept so existing links still resolve.
 
 To build it locally:
 
