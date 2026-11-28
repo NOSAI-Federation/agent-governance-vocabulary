@@ -3,6 +3,56 @@
 # Maps uibc (and its companion silent-failure-catalog) to the canonical
 # vocabulary in vocabulary.yaml v0.2.0 (draft, open for WG review).
 #
+# Revision 2026-11-24 (PR #280 review, @aeoess). This file replaces the
+# separate crosswalk/uibc-core.yaml proposed in #280. Both described the
+# same repository (uibc-core); two crosswalks for one system left readers
+# with conflicting mappings, so #280's file is withdrawn and its changes
+# are folded in here. What changed against the #268 version of this file,
+# and why:
+#   * bilateral_receipt: no_mapping -> false_analog. A handover evidence
+#     pack exists (one party seals, the other verifies); it is not a
+#     two-party co-signed object, so false_analog, not a mapping.
+#   * trust_verification and security_posture stay no_mapping. #280's
+#     draft had proposed `partial` for both; on re-reading the canonical
+#     definitions (graded identity status; wallet-discoverable artifact
+#     attestation), neither property exists here, so the stricter reading
+#     is kept. Rationale is recorded on each row rather than deleted.
+#   * entity_continuity stays no_mapping, now for the stated reason:
+#     continuity across key rotation is the property the term exists for,
+#     and a rotated key currently starts a new binding.
+#   * decision_lineage is added as partial, with the linkage scheme and
+#     the seal-coverage boundary written out (see the row).
+#   * descriptor_dimensions added (replay_class corrected from the
+#     #280 draft's full_replay to decision_replay).
+#   * links pinned to 03b81b2bc272c6d2f1d17ebc249f4e8d456d211f, the
+#     commit the rows were read at, instead of main.
+#   * decision_lineage now also states the S17 receipt chain
+#     (evidence/chain.json, previous_receipt_hash over the JCS of the
+#     predecessor) next to the event-id linkage of lifecycle.json, and
+#     records that the chain file is a structural member rather than an
+#     index entry, so the evidence root does not commit its bytes. That
+#     boundary was measured, not assumed: verify() at 03b81b2 on
+#     conformance/cases/02 gives S5 root a9348d857ee5efb3... unchanged
+#     when only chain.json is rewritten (cda26a78 -> 04e28d66) with S17
+#     still PASS, and unchanged again when the receipts are reversed, where
+#     S17 turns FAIL.
+#   * Rechecked at the pinned commit by running the verifier rather than
+#     reading the spec: checkpoint_head, lifecycle_head and the S1-S6 / S8
+#     behaviour described below match what verify() emits at 03b81b2 on
+#     conformance/cases/02 (overall INCONCLUSIVE, S6 unverified without a
+#     seal key). The revision note for the earlier pin said the fields had
+#     been checked against a verifier report; this says which report and
+#     at which commit.
+#   * 2026-11-25: the mapping_semantics block and the per-row
+#     justification / confidence fields added on 2026-11-24 are
+#     removed again, at the reviewer's request. A SKOS/SEMAPV
+#     mapping structure would apply to every crosswalk in this
+#     repository, so it belongs in its own issue, not inside one
+#     system's data file; and numerical confidence values need an
+#     agreed method for determining them before they are data.
+#     The five rows' explanations stay where they were, in each
+#     row's notes.
+#
 # Written by the mapped system's own author, not by the vocabulary
 # maintainers. It states what the published implementation actually emits,
 # verified field by field against a verifier report produced by following
@@ -20,10 +70,14 @@
 # emitted rather than extending the claim past the boundary.
 #
 # The report is NOT a signed object. The signature in the system is the
-# package seal (Ed25519 or HMAC-SHA256 over identity + manifest +
-# lifecycle), which the verifier checks and reports on; the report itself
-# carries no signature. Field lists below therefore use `emitted_fields`,
-# not `signed_payload_fields`.
+# package seal (Ed25519 or HMAC-SHA256), which signs the canonical
+# serialization of {"identity", "manifest"} and nothing else. The
+# manifest binds the evidence root, and its `checkpoint_head` commits to
+# (lifecycle_head, evidence_root, evidence_index_digest, evidence_count),
+# so the lifecycle log is covered indirectly — through the head
+# commitment, not event by event. The verifier checks that seal and
+# reports on it; the report itself carries no signature. Field lists
+# below therefore use `emitted_fields`, not `signed_payload_fields`.
 #
 # Repos (both public, no credentials needed to read them):
 #   https://github.com/zhaoxinghua09-cell/uibc-core
@@ -51,6 +105,14 @@ maintainer:
 
 version: "0.1.2"
 vocabulary_ref: "v0.2.0 (draft)"
+read_at_commit: "03b81b2bc272c6d2f1d17ebc249f4e8d456d211f"
+spec:
+  seal_semantics: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/03b81b2bc272c6d2f1d17ebc249f4e8d456d211f/docs/verdict-and-seal-semantics.md"
+
+system_attributes:
+  signature_capability: classical
+  canonicalization_profile: jcs-rfc-8785
+  hash_family: sha-256
 
 # ─────────────────────────────────────────────────
 # SIGNAL TYPE MAPPINGS
@@ -62,7 +124,7 @@ signal_types:
     internal: "uibc verifier report (overall `result`: PASS | FAIL | INCONCLUSIVE)"
     match: partial
     evidence: emitted
-    source_path: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/8f135e7e8143c2c12a7e7df9f63ad5a63439f181/uibc_core/verify.py"
+    source_path: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/03b81b2bc272c6d2f1d17ebc249f4e8d456d211f/uibc_core/verify.py"
     emitted_fields:
       - "result"                       # PASS | FAIL | INCONCLUSIVE — worst of the per-check results
       - "checks"                       # array of {id, name, result, detail}, one per check run (S1–S18 series)
@@ -88,18 +150,18 @@ signal_types:
 
   bilateral_receipt:
     canonical: bilateral_receipt
-    match: no_mapping
+    match: false_analog
     notes: |
-      No equivalent object exists in this implementation. The canonical
-      term requires both parties to sign the same preimage; uibc has no
-      two-party signed object — its only signature is the package seal,
-      applied by one party (the submitter) over identity + manifest +
-      lifecycle. An earlier draft of this crosswalk described a split
-      into receipt / acknowledgment / acceptance / closure objects with
-      fields such as `record_digest` and `mandate_ref`; those objects
-      belong to a separate standards-track text by the same author and
-      are not emitted by uibc-core, so the claim is withdrawn rather
-      than mapped.
+      A handover evidence pack exists: one party seals a handover record
+      and the receiving party verifies it, including a pinned-key run
+      (verify.py, `--pubkey`). It looks like a two-party receipt and can
+      be wired up as one, but it is not: only the outgoing party signs.
+      The receiving party's verification is a determination, not a
+      co-signature over the same preimage, and no signed `purpose`
+      field is emitted. false_analog, not `partial`, so that no
+      consumer treats a verified handover as a bilateral receipt. The
+      earlier no_mapping wording overstated the absence: the handover
+      flow is real, only the two-party signature is missing.
 
   security_posture:
     canonical: security_posture
@@ -113,7 +175,14 @@ signal_types:
       check at all (see the gaps section, where the missing
       revocation-status signal is recorded as a vocabulary gap, not as
       an emitted field). The false_analog framing is withdrawn: against
-      the canonical definition there is no mapping.
+      the canonical definition there is no mapping. PR #280's draft
+      proposed `partial` here on the grounds that the seal's signed
+      subject is an artifact (an evidence package). That is too loose:
+      the canonical term requires the artifact itself (repo, commit,
+      output) to be the signed subject and a wallet as the lookup key.
+      Here the signed payload is {"identity", "manifest"}, not the
+      artifact, and lookup is by `key_id` or a verifier-supplied pin;
+      no wallet exists. Hence no_mapping.
 
   # ── canonical terms we do not implement ────────────────────────────────
   # Each carries its own rationale: none of these is a stretched partial.
@@ -141,7 +210,17 @@ signal_types:
   trust_verification:
     canonical: trust_verification
     match: no_mapping
-    notes: "We do not verify or attest an identity's trust status. The report's `trust_level` describes the verification run itself — whether the seal key reached the verifier through an out-of-band channel (anchored) or was read out of the package (unanchored) — not a standing verification of the subject."
+    notes: |
+      The canonical term is a graded identity-layer status — Grade 1-3,
+      KYC presence, principal endorsement. We emit none of these. S2
+      does bind an identity to the sealing key (`key_id` is SHA-256 of
+      the public key) and checks that the identity is consistent across
+      the package, but that is a consistency check, not a verification
+      status, and it carries no grade. PR #280's draft proposed
+      `partial` for this row; on the canonical definition that overstates
+      it, so the stricter no_mapping is kept. The report's `trust_level`
+      also describes the verification run itself (whether the seal key
+      reached the verifier out of band), not the subject's standing.
 
   behavioral_trust:
     canonical: behavioral_trust
@@ -181,7 +260,72 @@ signal_types:
   entity_continuity:
     canonical: entity_continuity
     match: no_mapping
-    notes: "No continuity assertion: we do not bind a prior and a present identity of the subject."
+    notes: |
+      No continuity assertion: we do not bind a prior and a present
+      identity of the subject. The lifecycle log is ordered and S3
+      checks it against the declared state machine, but that is a check
+      on the sequence, not proof that the same entity persists across
+      an infrastructure change. The property the canonical term exists
+      for — same agent identity after key rotation, host migration or
+      environment swap — is absent: a rotated key currently starts a
+      new binding, and the seal scheme has no rotation chain yet
+      (tracked as an open audit finding). PR #280's draft called this
+      `partial`; on the canonical definition it is no_mapping.
+
+  decision_lineage:
+    canonical: decision_lineage
+    match: partial
+    notes: |
+      The lifecycle log is an ordered sequence of events for one subject,
+      and S3 checks that the sequence follows the declared state machine.
+      Divergence, stated plainly because the canonical term is specific:
+      entries do NOT reference their predecessor by content hash. Each
+      event carries `event_id` (a UUID) and `previous_event` points at the
+      previous `event_id`, not at a hash of the previous entry —
+      `anchors/001/package/lifecycle.json` shows this at the pinned commit.
+      Per-event `signature` exists in the format but is unratified and is
+      not covered by the seal (spec §3), so entries are not individually
+      signed. What is committed is the sequence as a whole: the manifest's
+      `checkpoint_head` = SHA-256(JCS({lifecycle_head, evidence_root,
+      evidence_index_digest, evidence_count})), where `lifecycle_head`
+      commits to (count, last sequence number, digest of the last event).
+      So lineage is covered indirectly and only at its head — a truncated
+      or rolled-back sequence is caught (S8) only against the sealed head,
+      and middle events are not individually committed. A consumer
+      requiring hash-linked entries cannot treat this as the canonical
+      primitive.
+      When `evidence/chain.json` is present, S17 checks a linear receipt
+      chain instead: receipt i's `previous_receipt_hash` must be the
+      SHA-256 over the JCS encoding of receipt i-1's signed envelope, and
+      receipt 0 must carry 64 zeros (`uibc_core/chain.py`, `check_chain`);
+      a value JCS cannot encode is a FAIL rather than a skip. That is the
+      shape the canonical term describes, but for the receipt stream only —
+      the lifecycle log stays linked by `event_id`, not by hash. One
+      boundary, measured at the pinned commit rather than assumed:
+      `evidence/chain.json` is a structural member under `evidence/`, not
+      an index entry, so the evidence root does not commit its bytes.
+      Rewriting only chain.json (same data, different whitespace;
+      sha256 cda26a78... -> 04e28d66...) leaves S5's computed root
+      unchanged at a9348d857ee5efb3... with S17 still PASS; reversing the
+      receipts leaves the root unchanged and turns S17 to FAIL. S17
+      therefore shows the chain is internally consistent, not that the
+      chain file was not replaced.
+
+# ─────────────────────────────────────────────────
+# DESCRIPTOR DIMENSIONS
+# ─────────────────────────────────────────────────
+descriptor_dimensions:
+  enforcement_class: binding
+  validity_temporal: at_issuance
+  refusal_authority: verifier
+  invariant_survival: post_action
+  # replay_class from the #280 draft said full_replay. Corrected: S1-S6 and
+  # the verdict can be recomputed from the package, which is decision_replay.
+  # full_replay would mean the recorded actions themselves can be replayed;
+  # they cannot — the package records evidence about actions, not an
+  # executable action log.
+  replay_class: decision_replay
+  governed_action_class: publish
 
 # ─────────────────────────────────────────────────
 # GAPS — questions the vocabulary has no signal type for
@@ -229,7 +373,7 @@ enforceability:
   strong: "receipt-side checks a replayer can re-run from the published fixture set (the verifier's check set plus the negative-control fixtures)"
   bounded: "the verdict holds only inside the declared evidence boundary; outside it we emit INCONCLUSIVE rather than extend the claim"
   detectable_only: "anything derived from a source we cannot re-fetch at verification time"
-  reference: "https://github.com/zhaoxinghua09-cell/silent-failure-catalog/blob/main/index.md"
+  reference: "https://github.com/zhaoxinghua09-cell/silent-failure-catalog/blob/1309e1a483227a1f6c61267abd4071f06d26caab/index.md"
 
 # ─────────────────────────────────────────────────
 # ANCHOR
@@ -261,9 +405,9 @@ drift:
     and a per-file sha256 over file_count files. It is NOT in VERIFICATION.md — the earlier
     text named the wrong file.
   evidence_paths:
-    cross_check: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/8f135e7e8143c2c12a7e7df9f63ad5a63439f181/independent_verifier/cross_check.py"
-    ci: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/8f135e7e8143c2c12a7e7df9f63ad5a63439f181/.github/workflows/ci.yml"
-    baseline: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/8f135e7e8143c2c12a7e7df9f63ad5a63439f181/manifest.json"
+    cross_check: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/03b81b2bc272c6d2f1d17ebc249f4e8d456d211f/independent_verifier/cross_check.py"
+    ci: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/03b81b2bc272c6d2f1d17ebc249f4e8d456d211f/.github/workflows/ci.yml"
+    baseline: "https://github.com/zhaoxinghua09-cell/uibc-core/blob/03b81b2bc272c6d2f1d17ebc249f4e8d456d211f/manifest.json"
   note: >-
     A gate that runs green while doing nothing is the failure mode this system is built
     against. What we can claim is that parity between the two implementations is
