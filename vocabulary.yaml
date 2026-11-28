@@ -799,8 +799,10 @@ crosswalk_match_types:
 # indirectly through a signed digest or reference, and a record that omits an
 # optional field does not show the format cannot carry it. Declare it only when
 # the pinned artifact definition shows the artifact cannot carry the property,
-# directly or through such a binding, or the maintainer confirms it. When
-# `lacks` is absent, a consumer treats the property's presence as unknown.
+# directly or through such a binding, or the maintainer confirms it. A `lacks`
+# entry that rests on a maintainer's confirmation links the comment or pull
+# request where the maintainer gave it. When `lacks` is absent, a consumer
+# treats the property's presence as unknown.
 crosswalk_mapping_fields:
   lacks:
     applies_to_match: ["partial"]
