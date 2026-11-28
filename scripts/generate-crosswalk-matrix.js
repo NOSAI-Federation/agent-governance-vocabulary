@@ -29,6 +29,8 @@ const REPO_ROOT = path.resolve(__dirname, '..')
 const DEFAULT_OUT = path.join(REPO_ROOT, '.generated', 'matrix', 'crosswalk-matrix.md')
 const REPO_URL = 'https://github.com/NOSAI-Federation/agent-governance-vocabulary'
 const SITE_URL = 'https://nosai-federation.github.io/agent-governance-vocabulary/'
+// Google Search Console ownership token for the published page. Public by design.
+const SITE_VERIFICATION = '1wO53WKvdUdpd9HOYMi4yvzcVIZm7APeelQ4RgudHGs'
 const SITE_TITLE = 'Crosswalk Matrix | Agent Governance Vocabulary'
 const SITE_DESCRIPTION = 'Crosswalks compared against the Agent Governance Vocabulary signal types, with mapping strengths, declared gaps and exclusions.'
 const PAGES_URL = 'https://nosai-federation.github.io/agent-governance-vocabulary/'
@@ -304,6 +306,7 @@ function renderHtml(model, opts = {}) {
   h.push(`<title>${esc(SITE_TITLE)}</title>`)
   h.push(`<meta name="description" content="${esc(SITE_DESCRIPTION)}">`)
   h.push(`<link rel="canonical" href="${esc(SITE_URL)}">`)
+  h.push(`<meta name="google-site-verification" content="${esc(SITE_VERIFICATION)}">`)
   h.push('<meta property="og:type" content="website">')
   h.push(`<meta property="og:title" content="${esc(SITE_TITLE)}">`)
   h.push(`<meta property="og:description" content="${esc(SITE_DESCRIPTION)}">`)
