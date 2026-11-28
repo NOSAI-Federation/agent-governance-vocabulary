@@ -14,7 +14,7 @@
 #     11 to 16 in full, the rest by heading)
 #   the same file at 63a99ddf72 (2026-10-01), for Section 11
 #   chinese/05-ANP-基于DID的授权协议.md (Section 11 heading only)
-#   CONTRIBUTING.md, README.md. Hashes in src/SHA256SUMS.
+#   CONTRIBUTING.md, README.md.
 #
 # Section 11 of ANP-05 (the VC Profile) is a heading with no body at
 # 0837cfd. Commit 6683793 ("update auth draft", 2026-10-15) removed 364
@@ -22,8 +22,8 @@
 # overview and Sections 1.1, 1.3, 2.2, 3 and 14 still describe the VC Profile
 # and point to Section 11, 11.2, 11.3, 11.4, 11.6 and 11.9. The VC Profile is therefore not mapped here. See q1.
 #
-# Implementation: the ANP SDKs were not examined. Rows rest on the
-# specification text.
+# Implementation pointers are in system.implementation.
+# Rows rest on the specification text.
 #
 # This is a third-party crosswalk drafted by aeoess (maintainer of this
 # registry), not by the ANP maintainers. It is offered for them to correct
@@ -37,7 +37,13 @@ system:
   repo: https://github.com/agent-network-protocol/AgentNetworkProtocol
   spec: https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md
   spec_version: "ANP-10 Draft, Version 1.1, and ANP-05 Draft, Version 0.7 (ANP vNext, not part of the ANP 1.2 release), at 0837cfd"
-  implementation: "Not examined for this draft."
+  implementation: >
+    The pinned README identifies AgentConnect as the public implementation
+    (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/README.md#L99-L105).
+    The anp SDK at 31d09e5 has a core mandate helper
+    (https://github.com/agent-network-protocol/anp/blob/31d09e5c42b6484ec2bd656713f9f9b9cd9324e2/anp/ap2/mandate.py).
+    This file does not establish ANP-10 or ANP-05 conformance of either, and
+    no ANP-05 authorization server or live payment endpoint was checked.
   role: >
     An agent communication protocol built on did:wba identities. ANP-10 is
     "an ANP application-layer adaptation of the Agent Payment Protocol
@@ -73,8 +79,15 @@ maintainer:
 # of JCS-canonicalized content: cart_hash = Base64URL(SHA-256(JCS(
 # CartMandate.contents))) and pmt_hash over payment_mandate_contents
 # (4.2.5, 4.4), with an explicit reference to RFC 8785. jcs-rfc-8785 is
-# declared for that committed content. The JWT bytes themselves are not
-# canonicalized.
+# declared for that committed content as a draft requirement
+# (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L455-L463).
+# The JWT bytes themselves are not canonicalized.
+# The reference snippet and SDK helper use Python json.dumps
+# (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L489-L524,
+# https://github.com/agent-network-protocol/anp/blob/31d09e5c42b6484ec2bd656713f9f9b9cd9324e2/anp/ap2/mandate.py).
+# Python json.dumps writes the number 1.0 as 1.0, where RFC 8785 serializes
+# it as 1 (https://www.rfc-editor.org/rfc/rfc8785.html#section-3.2.2.3).
+# This declaration does not assert SDK conformance.
 # hash_family: SHA-256 for cart_hash and pmt_hash, the verifier-visible
 # hashes.
 system_attributes:
@@ -106,6 +119,9 @@ signal_types:
       one cart. It cannot treat them as one two-party signed receipt.
       Recorded as false_analog because the shared cart_hash makes the pair
       close enough to be wired in as one.
+      No signed canonical purpose property was identified in these payloads
+      (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L428-L470,
+      https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L563-L593).
 
   governance_attestation:
     canonical: governance_attestation
@@ -118,7 +134,9 @@ signal_types:
       client identifier, Agent DID when verified, resource, scopes,
       "approval source and time", lifetime and revocation policy, internal
       grant reference), and calls it "an OAuth authorization-record
-      requirement". It is held by the AS, not signed or exported.
+      requirement". The cited grant-record requirement specifies no signed,
+      portable grant-attestation format
+      (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/05-anp-did-authorization-protocol-specification.md#L53-L59).
 
   settlement_witness:
     canonical: settlement_witness
@@ -153,7 +171,7 @@ signal_types:
   peer_review:
     canonical: peer_review
     match: no_mapping
-    notes: "No task-completion attestation signed by a delegating party. DeliveryReceipt would be signed by the merchant, the executor, and has no format."
+    notes: "No task-completion attestation signed by a delegating party. DeliveryReceipt is described as generated by the merchant, the executor, and has no format (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L136-L140)."
 
   job_performance:
     canonical: job_performance
@@ -222,7 +240,10 @@ descriptor_dimensions:
   payment_mandate:
     enforcement_class: binding
     note_enforcement: >
-      The merchant verifies the credentials before processing. "Receiving
+      In the illustrated flow, the merchant verifies the credentials before
+      requesting payment confirmation, after third-party payment has completed
+      (https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/0837cfdfaf4ddcf834f0890ddaf34fc4c824e066/application/10-anp-agent-payment-protocol-specification.md#L162-L176).
+      "Receiving
       party must verify signatures through DID document public keys" (7.1),
       and a cart_hash mismatch is "otherwise reject" (4.2.7). "Payment
       operations must obtain explicit user authorization" (7.5).
@@ -233,13 +254,10 @@ descriptor_dimensions:
       q2.
     refusal_authority: verifier
     note_refusal: "The receiving party (merchant, transaction agent or payment processor) verifies and rejects."
-    invariant_survival: pre_action
-    note_invariant: "Verification precedes payment processing."
     note_replay: >
       No replay_class selected. Signatures and hash bindings can be
       rechecked from the two JWS and the contents, but jti uniqueness rests
       on the receiver's "used jti list", which the records do not carry.
-    governed_action_class: transfer
 
 anp_specific_terms:
   cart_mandate: "Merchant-generated cart with payment_request (method_data, details, options), signed by merchant_authorization over cart_hash. [action_or_capability_binding]"
@@ -282,4 +300,6 @@ open_questions:
     question: >
       Is a DeliveryReceipt format planned, and would it be signed? A signed
       merchant record of delivery or settlement against the cart_hash is
-      the ANP artifact that would map to settlement_witness.
+      insufficient on its own to map to settlement_witness. It would also need
+      to attest that settlement was verified against expected terms and carry
+      an outcome verdict (the settlement_witness definition in vocabulary.yaml).
