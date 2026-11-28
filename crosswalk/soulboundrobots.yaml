@@ -20,15 +20,18 @@ mappings:
     internal: "SBR-002 Migration Attestation"
     match: exact
     notes: >
-      SBR-002 is a cryptographic migration attestation. It proves the same
-      agent_wallet (the AI's stable identity) persisted across a body swap.
+      SBR-002 specifies a cryptographic migration attestation that proves the
+      same agent_wallet (the AI's stable identity) persisted across a body swap.
       Five migration types: owner_upgrade, maintenance_swap,
       emergency_evacuation, employment_transfer, hot_swap.
-      Each attestation records departure and arrival contract addresses,
-      block numbers, and a continuity_verified boolean confirming no gap
-      in the agent_wallet chain. Attestations register on-chain via EAS
-      on Base. RNWY indexes these on-chain records passively — it does not
-      perform the underlying verification. Methodology: github.com/rnwy/soulboundrobots.
+      Under the specification, each attestation records departure and arrival
+      contract addresses, block numbers, and a continuity_verified boolean
+      confirming no gap in the agent_wallet chain, and is registered on-chain
+      via EAS on Base. RNWY would index those on-chain records passively,
+      without performing the underlying verification.
+      Status as of 2026-11-24: specified, not in production. No migration has
+      taken place, no attestation has been issued and no issuing service runs
+      (maintainer, issue #284). Methodology: github.com/rnwy/soulboundrobots.
     signed_payload_fields:
       - agent_wallet        # string — stable wallet address across all migrations
       - migration_type      # string — owner_upgrade | maintenance_swap | emergency_evacuation | employment_transfer | hot_swap
