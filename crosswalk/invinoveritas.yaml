@@ -1,0 +1,132 @@
+# invinoveritas → Agent Governance Vocabulary crosswalk
+#
+# invinoveritas is an independent verification layer for agent actions: a signed
+# review verdict before an action, a signed receipt after a payment the verdict
+# governed, and work-acceptance records whose criteria are committed before the
+# work exists. Every artifact is a Nostr event signed with BIP-340 by a published
+# verifier key (ML-DSA-65 companion signature on receipts), checkable offline.
+#
+# Source paths point at fixtures in the public repository, pinned to a commit.
+# The fixtures are real: exhibit 3 is a 1 USDC EIP-3009 transfer on Base
+# (tx 0x2afb35e24a20fdee74c35937feb59b86358d45c8029a91d065d59825c3e7c4a7).
+
+system:
+  name: invinoveritas
+  home: https://invinoveritas.dev
+  repo: https://github.com/babyblueviper1/invinoveritas
+  api: https://api.babyblueviper.com
+  verifier_endpoint: https://api.babyblueviper.com/verify-proof
+  role: >
+    Independent checker for agent actions. The checker key is never the
+    producer's key, and acceptance criteria are fixed before the work exists.
+
+license: Apache-2.0
+
+maintainer:
+  github: babyblueviper1
+  confirmed_at: "2026-11-28"
+  confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7241531549
+
+signature_alg: "BIP-340 Schnorr over secp256k1 (Nostr event id); ML-DSA-65 companion on payment receipts"
+canonicalization: "NIP-01 event serialization (the event id is sha256 of it)"
+
+signal_types:
+
+  settlement_witness:
+    canonical: settlement_witness
+    internal: invinoveritas.payment_receipt.v1
+    match: exact
+    evidence: emitted
+    source_path: "https://github.com/babyblueviper1/invinoveritas/blob/ea7bb174cb721f8fce7ad74256249dbbe9dfb56a/examples/payment-receipt/exhibit3_settled_receipt.json#response.receipt.settlement_status"
+    notes: |
+      POST /payment-receipt (free) takes the governing verdict event, the payment
+      args it bound and the settlement tx hash, and returns a signed receipt whose
+      subject is the settlement event (settlement_id = the tx hash). It reports
+      settlement_status, amount_matches and payee_matches, checked against the
+      terms the verdict bound (observed from the tx's token Transfer logs), and
+      carries the governing verdict in facilitator_verdict. retry_state is read
+      from the EIP-3009 authorization state on chain, so the same nonce cannot
+      pay twice. Scope: EIP-3009 token transfers on EVM chains; Lightning
+      payments are not covered by this receipt. Fixture: the signed receipt for
+      the real exhibit-3 settlement, with the request that produced it.
+
+  governance_attestation:
+    canonical: governance_attestation
+    internal: invinoveritas.verdict_proof.v1
+    match: partial
+    evidence: emitted
+    source_path: "https://github.com/babyblueviper1/invinoveritas/blob/ea7bb174cb721f8fce7ad74256249dbbe9dfb56a/examples/l402-verdict-gate/tests/fixtures/exhibit3_approve_settled.json#review_response.proof.event.content"
+    notes: |
+      A signed pre-action review verdict (approve / approve_with_concerns /
+      reject) bound to the action by action_binding_args_hash and
+      action_binding_tool_hash, with a policy_commitment over the review policy.
+      What does not carry over: the verdict is an independent reviewer's judgment
+      of a proposed action, not an attestation by the governing system that a
+      declared requirement (delegation scope, compliance check) was satisfied.
+      Enforcement depends on the consumer gating on it; the issuer does not
+      execute the action.
+
+  peer_review:
+    canonical: peer_review
+    internal: work acceptance record (POST /work-acceptance/check)
+    match: false_analog
+    notes: |
+      Both attest whether delivered work meets a task, but the issuer differs and
+      that is the defining property. peer_review is first-party, signed by the
+      delegator. A work-acceptance record is signed by a third-party checker
+      whose key is neither the producer's nor the delegator's, against criteria
+      committed before the work existed. Wiring it up as peer_review would hide
+      that independence. Fixtures and checker: examples/work-acceptance-record-log.
+
+  wallet_state:
+    canonical: wallet_state
+    match: no_mapping
+    notes: "Not issued. Receipts read token Transfer logs and authorization state for one settlement, not holdings."
+  behavioral_trust:
+    canonical: behavioral_trust
+    match: no_mapping
+    notes: "Not issued. The public ledger records verdicts and outcomes, but no behavioral score is signed."
+  wallet_intelligence:
+    canonical: wallet_intelligence
+    match: no_mapping
+    notes: "Not issued."
+  reasoning_integrity:
+    canonical: reasoning_integrity
+    match: no_mapping
+    notes: "Not issued. A verdict commits to its review model and prompt template hashes, but does not attest the integrity of another agent's reasoning."
+  compliance_risk:
+    canonical: compliance_risk
+    match: no_mapping
+    notes: "Not issued. No scored exposure is emitted."
+  passport_grade:
+    canonical: passport_grade
+    match: no_mapping
+    notes: "Not issued. Verdicts bind a key, not a graded identity."
+  trust_verification:
+    canonical: trust_verification
+    match: no_mapping
+    notes: "Not issued. No KYC or identity grade."
+  security_posture:
+    canonical: security_posture
+    match: no_mapping
+    notes: "Not issued."
+  job_performance:
+    canonical: job_performance
+    match: no_mapping
+    notes: "Not issued. Work-acceptance records are per task, not an aggregate performance signal."
+  completion_ratio:
+    canonical: completion_ratio
+    match: no_mapping
+    notes: "Not issued. No aggregate over a window is signed."
+  entity_continuity:
+    canonical: entity_continuity
+    match: no_mapping
+    notes: "Not issued."
+  cognitive_attestation:
+    canonical: cognitive_attestation
+    match: no_mapping
+    notes: "Not issued."
+  bilateral_receipt:
+    canonical: bilateral_receipt
+    match: no_mapping
+    notes: "Not issued. Every artifact is signed by the checker alone; no counterparty co-signs."
