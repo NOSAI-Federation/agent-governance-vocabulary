@@ -16,7 +16,7 @@
 #   packages/ack-id/src/controller-credential.ts,
 #   controller-claim-verifier.ts; packages/vc/src/verification/
 #   verify-parsed-credential.ts, verify-proof.ts;
-#   packages/jwt/src/jwt-algorithm.ts. Hashes in src/SHA256SUMS.
+#   packages/jwt/src/jwt-algorithm.ts.
 #
 # Where the documentation and the code differ, both are quoted and the
 # difference is listed under open questions. Rows rest on the code where
@@ -101,13 +101,20 @@ signal_types:
     internal: "PaymentReceiptCredential, issued by a Receipt Service (credentialSubject: paymentRequestToken, paymentOptionId, optional metadata)"
     match: partial
     notes: >
-      The receipt is a signed record issued after payment, binding the
+      The documented protocol intends receipt issuance after confirmed
+      settlement (docs/ack-pay/components-roles.mdx:22-25), binding the
       server-signed Payment Request token and the payment option the
-      client used. verifyPaymentReceipt checks the receipt proof, expiry,
-      issuer against trustedReceiptIssuers, revocation status, then
+      client used. verifyPaymentReceipt checks the receipt proof and expiry.
+      It checks the issuer against trustedReceiptIssuers when configured
+      (packages/vc/src/verification/verify-parsed-credential.ts:72-85), and
+      resolves status lists when the credential carries status information
+      (packages/vc/src/verification/is-revoked.ts:456-460). By default it
       verifies the embedded paymentRequestToken and requires that
       paymentOptionId "match any payment option in the Payment Request
-      token". That overlaps the canonical "settlement ... occurred and was
+      token" (packages/ack-pay/src/verify-payment-receipt.ts:119-144).
+      Setting verifyPaymentRequestTokenJwt to false skips request verification
+      and option binding (packages/ack-pay/src/verify-payment-receipt.ts:105-110).
+      That overlaps the canonical "settlement ... occurred and was
       verified against its expected terms".
 
       Partial, for three reasons. (1) The expected terms the receipt binds
@@ -117,12 +124,16 @@ signal_types:
       recipient and a settlement timestamp in credentialSubject.metadata,
       and the same page says "Metadata fields are non-normative". See q2.
       (2) There is no outcome verdict field. The attestation is the
-      existence of a Receipt Service signature, and a failed or partial
-      payment produces no receipt in the sources read. (3) The checks that
-      the payment actually settled run inside the Receipt Service and are
-      not described in the sources read.
+      existence of a Receipt Service signature. (3) Example settlement
+      enforcement varies. The example issuer allows payments through
+      (examples/issuer/src/routes/receipts.ts:49-62). The payment demo checks
+      on-chain transactions but simulates Stripe verification
+      (demos/payments/src/receipt-service.ts:152-251). A valid receipt signature
+      alone does not establish that its issuer checked settlement
+      (examples/issuer/src/routes/receipts.ts:49-62).
 
-      No evidence state is declared. The sources contain an example
+      No evidence state is declared, so it remains unspecified
+      (CONTRIBUTING.md, Evidence state). Separately, the sources contain an example
       issuer under examples/issuer and no production receipt service was
       identified, so no issuer is listed.
     issuers_in_production: []
@@ -137,7 +148,11 @@ signal_types:
       "principal endorsement". A ControllerCredential states that an owner
       DID controls an agent DID. createControllerCredential defaults the
       issuer to the controller ("If not provided, the controller will be
-      used as the issuer"), and verifyAgentControllerClaim resolves the
+      used as the issuer"), but permits an explicit third-party issuer.
+      The credential alone therefore does not invariably establish
+      owner-signed endorsement
+      (packages/ack-id/src/controller-credential.ts:36-43).
+      verifyAgentControllerClaim resolves the
       agent DID document and requires its controller to equal the claimed
       controller. Partial because the credential carries no grade or level
       and no KYC or KYB result. The identity model says the owner identity
@@ -150,13 +165,17 @@ signal_types:
     internal: "PaymentReceiptCredential embedding the server-signed paymentRequestToken"
     match: false_analog
     notes: >
-      A receipt verified by this code carries two signatures from two
-      parties: the server's signature on the embedded Payment Request
-      token and the Receipt Service's signature on the receipt. The
+      The default verification path checks two signature layers, the server's
+      signature on the embedded Payment Request token and the Receipt
+      Service's signature on the receipt. It does not require distinct signer
+      identities (packages/ack-pay/src/verify-payment-receipt.ts:89-144). The
       canonical term needs both parties to sign "the same canonicalized
       preimage". Here the server signs the request before payment and the
-      Receipt Service signs the receipt after it, over different payloads,
-      and the payer, named as credentialSubject.id, signs neither. Recorded
+      Receipt Service is intended to sign the receipt after it
+      (docs/ack-pay/components-roles.mdx:22-25), over different payloads,
+      and in the described server-initiated arrangement the payer, named as
+      credentialSubject.id, signs neither
+      (docs/ack-pay/receipt-verification.mdx:29-54). Recorded
       as false_analog because a two-signature payment receipt naming payer
       and payee could plausibly be wired in as a two-party receipt.
 
@@ -263,21 +282,26 @@ descriptor_dimensions:
       with service delivery." Whether to deliver is the server's call.
     validity_temporal: at_acceptance
     note_validity: >
-      Verified when presented, including expiry and a revocation check
-      ("isRevoked throws when the status cannot be established"). The
-      embedded request token is checked with verifyExpiry false, "since
-      the receipt lives longer than that".
+      Verified when presented, including expiry and status-list resolution
+      when the credential carries status information
+      (packages/vc/src/verification/is-revoked.ts:456-460).
+      On the default verification path, the embedded request token is checked
+      with verifyExpiry false, "since the receipt lives longer than that"
+      (packages/ack-pay/src/verify-payment-receipt.ts:105-129).
     refusal_authority: consumer_policy
     note_refusal: >
-      The server decides, with its own trusted issuer list and its own
+      The server decides, with its own trusted issuer list when configured
+      (packages/vc/src/verification/verify-parsed-credential.ts:72-85) and its own
       sufficiency checks on amount and recipient, which verifyPaymentReceipt
       returns to the caller rather than enforcing.
     invariant_survival: post_action
-    note_invariant: "Issued after the payment is executed."
+    note_invariant: "Documented issuance follows confirmed payment settlement (docs/ack-pay/components-roles.mdx:22-25)."
     note_replay: >
-      No replay_class selected. Signature and option binding can be
-      rechecked offline, but revocation status is resolved from the
-      issuer's status list at verification time, and the
+      No replay_class selected. Signature and, by default, option binding can
+      be rechecked offline (packages/ack-pay/src/verify-payment-receipt.ts:105-144),
+      but revocation status is resolved from the issuer's status list at
+      verification time when the credential carries status information
+      (packages/vc/src/verification/is-revoked.ts:456-460), and the
       documentation's replay protection for request ids is left to the
       server.
     governed_action_class: transfer
