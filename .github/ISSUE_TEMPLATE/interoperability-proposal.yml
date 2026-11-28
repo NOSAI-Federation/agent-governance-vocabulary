@@ -1,0 +1,36 @@
+name: Propose an interoperability experiment
+description: A joint check or workflow between two or more independent systems.
+labels: ["interoperability"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Joining an experiment does not enroll a project in shared governance, and nothing here assigns work to a project that has not agreed to it. Name only what your own project will do, and ask the others.
+  - type: textarea
+    id: systems
+    attributes:
+      label: Systems involved
+      description: Each system and who would speak for it. Say which ones have already agreed.
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Boundary
+      description: What passes from one system to the other, and which record or field carries it.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: The cases, and the expected result of each, including the cases that must be refused. Leave open what is not decided yet.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence the run will produce
+      description: If known, the verifier and version, the pinned inputs with digests, and where the run record will be published.
+  - type: textarea
+    id: limits
+    attributes:
+      label: What the result will not establish

@@ -1,0 +1,42 @@
+name: Correct a crosswalk
+description: A mapping in an existing crosswalk file is wrong, stale or disputed.
+labels: ["crosswalk"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A system's maintainer can correct their own file at any time with a pull request. Use this form when you are not the maintainer, or when the correction needs discussion first.
+  - type: input
+    id: file
+    attributes:
+      label: Crosswalk file
+      placeholder: crosswalk/example.yaml
+    validations:
+      required: true
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Affected mapping
+      description: The signal type or field, and the current value of `match` or the field in question.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Pinned source
+      description: If you have one, the commit, release tag or dated document that shows the current mapping is wrong.
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed correction and reason
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: Your relationship to the system
+      options:
+        - I maintain it
+        - I contribute to it
+        - I use or integrate it
+        - None, I read its public sources
+    validations:
+      required: true

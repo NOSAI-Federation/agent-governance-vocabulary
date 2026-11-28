@@ -1,0 +1,41 @@
+name: Propose a vocabulary term
+description: A new signal type or other term for a vocabulary file. Terms start as an issue before any pull request.
+labels: ["vocabulary-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        CONTRIBUTING.md, section "Proposing new canonical terms", sets the bar. A term with no implementation yet can be held as `reserved`, and one implementation can land it as `proposed`. `canonical` needs two independent implementations.
+  - type: input
+    id: term
+    attributes:
+      label: Proposed term id
+      description: Lower snake case, for example `settlement_witness`.
+    validations:
+      required: true
+  - type: textarea
+    id: definition
+    attributes:
+      label: Definition
+      description: One sentence that describes the abstract property. No key ids, endpoints or algorithm choices that belong to one implementer.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What cannot be expressed today
+      description: Why an existing term plus descriptors does not cover this.
+    validations:
+      required: true
+  - type: textarea
+    id: implementations
+    attributes:
+      label: Implementations
+      description: Known implementations and their evidence, with who maintains each one. If none exists, say that the proposal is for a reserved term.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Source references
+      description: Pinned links (commit, release tag or dated document) for the claims above.
