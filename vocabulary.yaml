@@ -794,10 +794,13 @@ crosswalk_match_types:
 # `lacks` describes a property absent from the mapped artifact, not a
 # capability missing from the whole system. The declaration must rest on
 # pinned evidence or the implementing maintainer's confirmation. A property
-# the reviewed sources do not mention is not lacking: declare it only when the
-# pinned artifact definition or its signed field list shows the property is
-# absent, or the maintainer confirms it. When `lacks` is absent, a consumer
-# treats the property's presence as unknown.
+# the reviewed sources do not mention is not lacking. A field missing from a
+# signed field list is not enough either, because the property can be bound
+# indirectly through a signed digest or reference, and a record that omits an
+# optional field does not show the format cannot carry it. Declare it only when
+# the pinned artifact definition shows the artifact cannot carry the property,
+# directly or through such a binding, or the maintainer confirms it. When
+# `lacks` is absent, a consumer treats the property's presence as unknown.
 crosswalk_mapping_fields:
   lacks:
     applies_to_match: ["partial"]
