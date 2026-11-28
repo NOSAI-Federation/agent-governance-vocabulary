@@ -134,7 +134,7 @@ const GOOD = [
   const page = r.exit === 0 && fs.existsSync(pagePath) ? fs.readFileSync(pagePath, 'utf8') : ''
   const index = r.exit === 0 ? fs.readFileSync(path.join(dir, 'site', 'index.html'), 'utf8') : ''
   const sm = r.exit === 0 ? fs.readFileSync(path.join(dir, 'site', 'sitemap.xml'), 'utf8') : ''
-  check('6b. a valid file builds the page', r.exit === 0 && page.includes('https://example.org/confirm') && page.includes('@someone'), r.out)
+  check('6b. a valid file builds the page', r.exit === 0 && /<a href="https:\/\/example\.org\/confirm">headings confirmed by @someone<\/a>/.test(page), r.out)
   check('6b. heading text is escaped', page.includes('Evidence &lt;b&gt;') && !page.includes('Evidence <b>'))
   check('6b. an empty heading says so', page.includes('No system is listed here yet.'))
   check('6b. the matrix links the page and the sitemap lists it', index.includes('href="by-problem.html"') && sm.includes('by-problem.html</loc>'))
