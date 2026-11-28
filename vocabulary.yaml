@@ -562,6 +562,11 @@ system_attributes:
         not qualify, and neither does naming a function or pointing to code.
       implementation: the rule is defined only by the project's code.
 
+      A project specification that adopts an external standard unchanged,
+      such as "canonicalize with RFC 8785", is external-standard, because the
+      standard defines the bytes. When the project's specification changes or
+      extends that standard, the value is project-specification.
+
       Optional. Existing crosswalks keep their current values, and a missing
       value says nothing about whether a specification exists. The value is
       set when the system's maintainer confirms where the rule is defined.
