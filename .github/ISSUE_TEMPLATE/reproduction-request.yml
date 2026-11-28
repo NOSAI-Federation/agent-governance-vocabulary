@@ -1,0 +1,44 @@
+name: Ask for an independent run
+description: Ask a project other than your own to rerun a published check.
+labels: ["reproduction-request", "independent-review-wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        SHARED-DECISIONS.md, section "Independently reproduced", says what makes a run independent and what its record must contain.
+  - type: input
+    id: artifact
+    attributes:
+      label: Artifact
+      description: Repository or package that holds the check.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Pinned version
+      description: Commit or released version, and digests of the input files if they are separate.
+    validations:
+      required: true
+  - type: textarea
+    id: instructions
+    attributes:
+      label: How to run it
+      description: Commands, requirements and the expected result for each case.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: What you want checked
+      description: The claim the run supports and the case set it covers.
+    validations:
+      required: true
+  - type: textarea
+    id: authorship
+    attributes:
+      label: Who wrote the fixtures and the verifier
+      description: A rerun by the author of the inputs or of the check is a reproduction, not independent evidence.
+    validations:
+      required: true

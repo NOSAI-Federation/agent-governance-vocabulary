@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem privately
+    url: https://github.com/NOSAI-Federation/agent-governance-vocabulary/security/advisories/new
+    about: Problems in the validators, the CI or the integrity of admitted records. Please do not open a public issue.
+  - name: Add a crosswalk for your system
+    url: https://github.com/NOSAI-Federation/agent-governance-vocabulary/blob/main/CONTRIBUTING.md#quick-start
+    about: A new crosswalk is a pull request, not an issue. CONTRIBUTING.md lists what it needs.
