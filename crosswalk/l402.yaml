@@ -12,7 +12,8 @@
 # Reference implementation, lightninglabs/aperture master @
 #   44aab5d7c12aa864585f236198c7f40924333dcb (2026-11-07):
 #   l402/satisfier.go and l402/caveat.go, read for caveat condition names
-#   and the built-in satisfier set only. Hashes in src/SHA256SUMS.
+#   and the built-in satisfier set only.
+#   mint/mint.go:341-345, read for VerifyL402 satisfier registration.
 #
 # This is a third-party crosswalk drafted by aeoess (maintainer of this
 # registry), not by the L402 authors. It is offered for them to correct or
@@ -25,7 +26,7 @@ system:
   home: https://github.com/lightninglabs/L402
   repo: https://github.com/lightninglabs/L402
   spec: https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/protocol-specification.md
-  spec_version: "L402 Protocol Specification and Macaroon Technical Specification at 592203a (2026-03-20). BLIP-0026 is the bLIP form."
+  spec_version: "L402 Protocol Specification and Macaroon Technical Specification at 592203a (2026-03-20). The proposed bLIP in PR #26 (https://github.com/lightning/blips/pull/26) is separate from this reviewed specification revision."
   implementation: "lightninglabs/aperture (Go reverse proxy). Other implementations are listed in macaroon-spec.md Reference Implementations, not examined."
   role: >
     "A server issues a challenge containing an authentication credential
@@ -56,12 +57,9 @@ maintainer:
     author: Tymofii Pidlisnyi
   third_party_authored: true
 
-# signature_capability: the macaroon integrity check is an HMAC-SHA256
-# chain under a server-held 32-byte root key, a symmetric MAC, not a
-# public-key signature. Only the minter can verify it. classical is the
-# nearest enum value (pre-PQC, symmetric). Third parties cannot verify an
-# L402 credential, which a verifier filtering on signature_capability
-# should know.
+# signature_capability is omitted. The specification defines an HMAC-SHA256
+# chain, a symmetric MAC (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L25-L58).
+# No applicable enum describes it (system_attributes.signature_capability in vocabulary.yaml).
 # canonicalization: caveats are UTF-8 "condition=value" strings and "The
 # caveat's raw byte encoding (its UTF-8 string representation) is what
 # gets HMACed into the signature chain." Macaroon V2 binary serialization.
@@ -69,7 +67,6 @@ maintainer:
 # hash_family: SHA-256 for the payment hash, the root key lookup and the
 # HMAC.
 system_attributes:
-  signature_capability: classical
   canonicalization_profile: implementation-defined
   hash_family: sha-256
 
@@ -83,13 +80,16 @@ signal_types:
   settlement_witness:
     canonical: settlement_witness
     internal: "payment preimage r presented with the macaroon (Authorization: L402 <macaroon>:<preimage>, or the preimage caveat)"
+    # Authorization field: https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/protocol-specification.md#L130-L144
+    # Preimage caveat: https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L191-L200
+    # Preimage extraction: https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L339-L345
     match: false_analog
     notes: >
       "Possession of the preimage proves the invoice was paid." A consumer
       could plausibly take the (macaroon, preimage) pair as a settlement
       witness, which is the substitution hazard. It is not one under the
-      canonical definition. (1) Nothing is signed by anyone about the
-      settlement. The preimage is a hash preimage released by payment, and
+      canonical definition. (1) Nothing in the mapped credential pair is
+      signed by anyone about the settlement (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L15-L25). The preimage is a hash preimage released by payment, and
       the macaroon is an HMAC only the minter can check. (2) There is no
       verdict and no expected terms beyond the payment hash. The amount is
       the invoice's, and "Clients MUST verify that the invoice amount is
@@ -105,7 +105,7 @@ signal_types:
   bilateral_receipt:
     canonical: bilateral_receipt
     match: no_mapping
-    notes: "No two-party signed record. The only integrity check is the minter's HMAC chain."
+    notes: "No two-party signed record. The credential's integrity mechanism is the minter's HMAC chain (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L15-L58)."
 
   trust_verification:
     canonical: trust_verification
@@ -115,7 +115,7 @@ signal_types:
   behavioral_trust:
     canonical: behavioral_trust
     match: no_mapping
-    notes: "No scored assessment of client behavior. Usage count and volume appear only as revocation conditions."
+    notes: "No scored assessment of client behavior. Usage count and volume appear as revocation conditions (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/protocol-specification.md#L317-L322). Volume also appears as a constraint caveat (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L227-L243)."
 
   cognitive_attestation:
     canonical: cognitive_attestation
@@ -145,7 +145,7 @@ signal_types:
   entity_continuity:
     canonical: entity_continuity
     match: no_mapping
-    notes: "token_id persists across macaroon rotations as a 'stable user identifier', but no signed continuity claim is defined."
+    notes: "The specification describes token_id as a 'stable user identifier' across macaroon rotations (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L108-L114), but no signed continuity claim is defined."
 
   passport_grade:
     canonical: passport_grade
@@ -176,7 +176,7 @@ decision_trajectory:
   decision_lineage:
     canonical: decision_lineage
     match: no_mapping
-    notes: "The caveat chain is an ordered HMAC chain of restrictions on one credential, not a sequence of decisions, and it is verifiable only by the minter."
+    notes: "The caveat chain is an ordered HMAC chain of restrictions on one credential, not a sequence of decisions, and it is verifiable by a root-key holder (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L25-L58)."
 
   baseline_revision:
     canonical: baseline_revision
@@ -204,6 +204,8 @@ descriptor_dimensions:
       Binding covers caveats the verifier has a satisfier for. "If no
       satisfier is registered for a caveat's condition, the caveat MUST be
       skipped (not rejected)", see q2.
+      The inspected Aperture VerifyL402 path registers services and timeout
+      only (https://github.com/lightninglabs/aperture/blob/44aab5d7c12aa864585f236198c7f40924333dcb/mint/mint.go#L341-L345).
     validity_temporal: at_processing
     note_validity: >
       Checked on each request. Revocation is "delete its corresponding root
@@ -232,7 +234,7 @@ l402_specific_terms:
   macaroon_identifier: "version (uint16) || payment_hash (32 bytes) || token_id (32 bytes), 66 bytes. [action_or_capability_binding, target_binding]"
   root_key: "Per-macaroon 32-byte server secret, looked up by sha256(identifier). Revocation deletes it. [revocation]"
   caveat: "UTF-8 condition=value appended to the HMAC chain. Standard types preimage, services, <service>_capabilities and constraint caveats. [action_or_capability_binding]"
-  attenuation: "Holder appends caveats with new_sig = HMAC(old_sig, new_caveat) without the root key. 'New caveats can only restrict, never expand authority.' Enforced per condition by SatisfyPrevious. [delegated_authority] Related open gap candidate in this registry: #125 (attenuating_delegation)."
+  attenuation: "Holder appends caveats with new_sig = HMAC(old_sig, new_caveat) without the root key. 'New caveats can only restrict, never expand authority.' Enforced per condition by SatisfyPrevious for conditions registered by the verifier (https://github.com/lightninglabs/aperture/blob/44aab5d7c12aa864585f236198c7f40924333dcb/l402/caveat.go#L101-L127). [delegated_authority] Related open gap candidate in this registry: #125 (attenuating_delegation)."
   satisfier: "Verifier function per caveat condition with SatisfyPrevious and SatisfyFinal. Unknown conditions are skipped. [verifier_trust_policy]"
   self_attenuation_binding: "Client-side caveats binding a credential to IP, TLS client certificate or origin against counterfeit servers (9.3). [holder_binding]"
 
@@ -248,10 +250,15 @@ open_questions:
     topic: unknown caveats and delegation
     question: >
       The Attenuation example narrows a Loop macaroon by adding
-      loop_in_monthly_volume_sats. The built-in satisfiers cover services,
-      capabilities and valid_until, and unknown conditions "MUST be
-      skipped". A delegating holder's volume limit therefore binds only
-      where the target service registers a satisfier for it. Is that the
+      loop_in_monthly_volume_sats (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L293-L306).
+      The specification lists services, capabilities and valid_until
+      satisfiers and says unknown conditions "MUST be skipped"
+      (https://github.com/lightninglabs/L402/blob/592203a95ea297fad6d7e10c6de2d827bfd450b2/macaroon-spec.md#L350-L373).
+      The inspected Aperture VerifyL402 path registers services and timeout
+      only (https://github.com/lightninglabs/aperture/blob/44aab5d7c12aa864585f236198c7f40924333dcb/mint/mint.go#L341-L345), and VerifyCaveats skips conditions
+      without a supplied satisfier (https://github.com/lightninglabs/aperture/blob/44aab5d7c12aa864585f236198c7f40924333dcb/l402/caveat.go#L109-L112).
+      A delegating holder's volume limit therefore binds only where the
+      target service registers a satisfier for it. Is that the
       intended reading? It decides whether attenuation can be described as
       enforced narrowing or as narrowing the service may honor.
   - id: q3
