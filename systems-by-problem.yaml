@@ -39,7 +39,7 @@ systems:
   - crosswalk: crosswalk/aeoess-aps.yaml
     headings: [identity-and-authority, revocation, evidence-and-receipts]
     confirmed_by: aeoess
-    confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294
+    confirmation: https://github.com/NOSAI-Federation/agent-governance-vocabulary/issues/294#issuecomment-7232780692
   - crosswalk: crosswalk/mycelium-trails.yaml
     headings: [evidence-and-receipts]
     confirmed_by: giskard09
